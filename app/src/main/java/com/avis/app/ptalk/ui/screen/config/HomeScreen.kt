@@ -56,6 +56,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.avis.app.ptalk.LocalAppColors
 import com.avis.app.ptalk.R
@@ -171,14 +172,43 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
 
-            // CTS / PTIT Logo
-            Image(
-                painter = painterResource(id = R.drawable.logo_cts_main),
-                contentDescription = "CTS Logo",
+            // Co-Branding Pill Bar (PTIT --- PASSISTANT --- CTS)
+            Row(
                 modifier = Modifier
-                    .width(PTalkTokens.BrandBar.CtsWidth)
-                    .height(PTalkTokens.BrandBar.CtsHeight)
-            )
+                    .fillMaxWidth()
+                    .height(84.dp)
+                    .background(Color.White, shape = androidx.compose.foundation.shape.RoundedCornerShape(42.dp))
+                    .padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Left: PTIT Logo
+                Image(
+                    painter = painterResource(id = R.drawable.logo_ptit),
+                    contentDescription = "Logo PTIT",
+                    modifier = Modifier.size(48.dp),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                )
+
+                // Center: Text "PASSISTANT"
+                Text(
+                    text = "PASSISTANT",
+                    color = Color(0xFF3F6B58), // Premium green/teal tone matching the KidMentor style
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.5.sp
+                )
+
+                // Right: CTS Logo
+                Image(
+                    painter = painterResource(id = R.drawable.logo_cts_flashscreen),
+                    contentDescription = "Logo CTS",
+                    modifier = Modifier
+                        .width(64.dp)
+                        .height(48.dp),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                )
+            }
 
             Spacer(modifier = Modifier.height(PTalkTokens.Spacing.HeroTop))
 

@@ -1,63 +1,93 @@
 package com.avis.app.ptalk.ui.screen.auth
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import com.avis.app.ptalk.R
+import com.avis.app.ptalk.ui.theme.PTalkTokens
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.avis.app.ptalk.LocalAppColors
-import com.avis.app.ptalk.R
-import com.avis.app.ptalk.ui.theme.TechColors
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun SplashScreen(onSplashComplete: () -> Unit) {
-    val colors = LocalAppColors.current
-    var startAnimation by remember { mutableStateOf(false) }
-
-    val alphaAnim = animateFloatAsState(
-        targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(durationMillis = 800),
-        label = "alphaAnim"
-    )
+    // Animation states
+    val scale = remember { Animatable(0f) }
+    val rotationY = remember { Animatable(0f) }
+    val appNameAlpha = remember { Animatable(0f) }
+    val footerAlpha = remember { Animatable(0f) }
+    val footerScale = remember { Animatable(0.5f) }
 
     LaunchedEffect(key1 = true) {
-        startAnimation = true
-        delay(2000L) // Wait for 2 seconds
+        // Phase 1: PTIT Logo scales up and rotates 360 degrees horizontally (slowed down to 2000ms)
+        launch {
+            scale.animateTo(
+                targetValue = 1.3f, // Phóng to logo PTIT
+                animationSpec = tween(durationMillis = 2000)
+            )
+        }
+        rotationY.animateTo(
+            targetValue = 360f, // Xoay tròn 360 độ theo chiều ngang
+            animationSpec = tween(durationMillis = 2000)
+        )
+        
+        delay(200L) // Một chút khoảng nghỉ ngắn sau khi xoay xong
+
+        // Phase 2: App Name "PASISTANT" fades in
+        appNameAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 800)
+        )
+
+        delay(200L)
+
+        // Phase 3: "made by" section pops out (scales up & fades in)
+        launch {
+            footerScale.animateTo(
+                targetValue = 1.0f,
+                animationSpec = tween(durationMillis = 600)
+            )
+        }
+        footerAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 600)
+        )
+
+        delay(1500L) // Hold before completing splash screen
         onSplashComplete()
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(PTalkTokens.Colors.SplashBg)
     ) {
         // Top promotional bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
-                .background(Color(0xFF111111)),
+                .height(PTalkTokens.SplashDimens.TopBarHeight)
+                .background(PTalkTokens.Colors.SplashTopBarBg),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "PASSISTANT",
-                color = Color.White,
-                fontSize = 14.sp,
+                text = "PAssistant",
+                color = PTalkTokens.Colors.SplashTopBarText,
+                fontSize = PTalkTokens.FontSizes.SplashTopbar,
                 fontWeight = FontWeight.Medium,
-                letterSpacing = 2.sp
+                letterSpacing = PTalkTokens.FontSizes.SplashTopbar * 0.15f
             )
         }
 
@@ -65,27 +95,34 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.Center)
-                .alpha(alphaAnim.value),
+                .align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // PTIT Logo
+            // PTIT Logo with scale and rotation animations
             Image(
                 painter = painterResource(id = R.drawable.logo_ptit),
                 contentDescription = "Logo PTIT",
-                modifier = Modifier.size(160.dp),
+                modifier = Modifier
+                    .size(PTalkTokens.SplashDimens.LogoSize)
+                    .graphicsLayer {
+                        scaleX = scale.value
+                        scaleY = scale.value
+                        this.rotationY = rotationY.value
+                        cameraDistance = 12f * density
+                    },
                 contentScale = ContentScale.Fit
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL * 1.5f))
 
             // App Name
             Text(
-                text = "PASSISTANT",
-                color = Color(0xFF111111),
-                fontSize = 24.sp,
+                text = "PAssistant",
+                color = PTalkTokens.Colors.SplashTitle,
+                fontSize = 48.sp,
                 fontWeight = FontWeight.Medium,
-                letterSpacing = 2.sp
+                letterSpacing = 48.sp * 0.06f,
+                modifier = Modifier.alpha(appNameAlpha.value)
             )
         }
 
@@ -94,42 +131,48 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .alpha(alphaAnim.value),
+                .alpha(footerAlpha.value)
+                .graphicsLayer {
+                    scaleX = footerScale.value
+                    scaleY = footerScale.value
+                },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Made by",
-                color = Color(0xFF707072),
-                fontSize = 12.sp,
-                letterSpacing = 1.sp
+                color = PTalkTokens.Colors.SplashSubtitle,
+                fontSize = PTalkTokens.FontSizes.SplashSubtitle,
+                letterSpacing = PTalkTokens.FontSizes.SplashSubtitle * 0.08f
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.S))
 
             Image(
                 painter = painterResource(id = R.drawable.logo_cts_flashscreen),
                 contentDescription = "Logo CTS",
-                modifier = Modifier.height(40.dp),
+                modifier = Modifier
+                    .width(PTalkTokens.SplashDimens.CtsLogoWidth)
+                    .height(PTalkTokens.SplashDimens.CtsLogoHeight),
                 contentScale = ContentScale.Fit
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
 
             // Bottom Divider
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(Color(0xFFE5E5E5))
+                    .background(PTalkTokens.Colors.SplashDivider)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
 
             Text(
                 text = "Học viện Công nghệ Bưu chính Viễn thông",
-                color = Color(0xFF9E9EA0),
-                fontSize = 12.sp,
-                modifier = Modifier.padding(bottom = 24.dp)
+                color = PTalkTokens.Colors.SplashFooterText,
+                fontSize = PTalkTokens.FontSizes.SplashFooter,
+                modifier = Modifier.padding(bottom = PTalkTokens.Spacing.XL)
             )
         }
     }

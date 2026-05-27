@@ -1,215 +1,225 @@
 package com.avis.app.ptalk.ui.screen.auth
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.avis.app.ptalk.LocalAppColors
 import com.avis.app.ptalk.R
-import com.avis.app.ptalk.ui.theme.PTalkTokens
-import com.avis.app.ptalk.ui.viewmodel.auth.VMOIDCLogin
+import com.avis.app.ptalk.ui.theme.TechColors
+import com.avis.app.ptalk.ui.viewmodel.auth.VMLogin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onNavigateToHome: () -> Unit,
-    oidcViewModel: VMOIDCLogin = hiltViewModel()
+    onNavigateToSignup: () -> Unit,
+    onLaunchSSO: () -> Unit = {},
+    viewModel: VMLogin = hiltViewModel()
 ) {
-    val oidcState by oidcViewModel.uiState.collectAsState()
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+    val colors = LocalAppColors.current
 
-    // OIDC Activity Result Launcher
-    val oidcLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        result.data?.let { intent ->
-            oidcViewModel.handleAuthCallback(intent)
-        }
-    }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
-    // Observe OIDC pending intent — launch when ready
-    LaunchedEffect(oidcViewModel.pendingAuthIntent.collectAsState().value) {
-        oidcViewModel.pendingAuthIntent.value?.let { intent ->
-            oidcLauncher.launch(intent)
-            oidcViewModel.onAuthIntentConsumed()
-        }
-    }
-
-    // Navigate on OIDC success
-    LaunchedEffect(oidcState.success) {
-        if (oidcState.success) {
+    LaunchedEffect(uiState.success) {
+        if (uiState.success) {
             onNavigateToHome()
         }
     }
 
-    var isEnglish by remember { mutableStateOf(false) }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(PTalkTokens.Colors.LoginBg)
+            .background(colors.background)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = PTalkTokens.Spacing.XXL)
+                .padding(24.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // HERO SECTION
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = PTalkTokens.Spacing.HeroTop,
-                        start = PTalkTokens.Spacing.XL,
-                        end = PTalkTokens.Spacing.XL
-                    ),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                // Larger logo PTIT as requested
-                Image(
-                    painter = painterResource(id = R.drawable.logo_ptit),
-                    contentDescription = "Logo PTIT",
-                    modifier = Modifier.size(130.dp)
+            Spacer(modifier = Modifier.height(60.dp))
+            
+            // PTIT University Logo
+            Image(
+                painter = painterResource(id = R.drawable.logo_ptit),
+                contentDescription = "Logo",
+                modifier = Modifier.size(120.dp)
+            )
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Text(
+                text = "ĐĂNG NHẬP",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 2.sp
+                ),
+                color = TechColors.PTITRed
+            )
+            
+            Spacer(modifier = Modifier.height(40.dp))
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it; viewModel.clearError() },
+                label = { Text("Email hoặc Tên đăng nhập") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = TechColors.PTITRed,
+                    focusedLabelColor = TechColors.PTITRed
                 )
-
-                // Language Selector Toggle (Interactive VIE/ENG)
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .clip(PTalkTokens.Shapes.LangBadge)
-                        .background(PTalkTokens.Colors.InputFieldBg)
-                        .padding(2.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(PTalkTokens.Shapes.LangBadge)
-                            .background(if (!isEnglish) PTalkTokens.Colors.Black else Color.Transparent)
-                            .clickable { isEnglish = false }
-                            .padding(horizontal = PTalkTokens.Spacing.M, vertical = PTalkTokens.Spacing.XS + 2.dp)
-                    ) {
-                        Text(
-                            "VIE",
-                            color = if (!isEnglish) PTalkTokens.Colors.White else PTalkTokens.Colors.LoginSubheadline,
-                            fontSize = PTalkTokens.FontSizes.BrandTitle,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .clip(PTalkTokens.Shapes.LangBadge)
-                            .background(if (isEnglish) PTalkTokens.Colors.Black else Color.Transparent)
-                            .clickable { isEnglish = true }
-                            .padding(horizontal = PTalkTokens.Spacing.M, vertical = PTalkTokens.Spacing.XS + 2.dp)
-                    ) {
-                        Text(
-                            "ENG",
-                            color = if (isEnglish) PTalkTokens.Colors.White else PTalkTokens.Colors.LoginSubheadline,
-                            fontSize = PTalkTokens.FontSizes.BrandTitle,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
-
-            // Brand Header: CHÀO MỪNG BẠN TRỞ LẠI
-            Text(
-                text = if (isEnglish) "WELCOME\nBACK" else "CHÀO MỪNG\nBẠN TRỞ LẠI",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                lineHeight = 38.sp,
-                textAlign = TextAlign.Center,
-                color = PTalkTokens.Colors.LoginHeadline
             )
 
-            Text(
-                text = if (isEnglish) "Sign in to continue setting up your device." else "Đăng nhập để tiếp tục thiết lập thiết bị của bạn.",
-                fontSize = PTalkTokens.FontSizes.LoginSubheadline,
-                color = PTalkTokens.Colors.LoginSubheadline,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = PTalkTokens.Spacing.M, start = 24.dp, end = 24.dp)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it; viewModel.clearError() },
+                label = { Text("Mật khẩu") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector = image, contentDescription = "Toggle password visibility")
+                    }
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = TechColors.PTITRed,
+                    focusedLabelColor = TechColors.PTITRed
+                )
             )
 
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XXL))
-
-            // OIDC error display
-            if (!oidcState.error.isNullOrEmpty()) {
+            if (!uiState.error.isNullOrEmpty()) {
                 Text(
-                    text = oidcState.error!!,
-                    color = PTalkTokens.Colors.LoginError,
-                    fontSize = PTalkTokens.FontSizes.LoginError,
-                    fontWeight = FontWeight.Medium,
+                    text = uiState.error!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier
-                        .padding(horizontal = PTalkTokens.LoginDimens.FormMarginH)
+                        .padding(top = 8.dp)
                         .fillMaxWidth(),
                     textAlign = TextAlign.Start
                 )
-                Spacer(modifier = Modifier.height(PTalkTokens.Spacing.M))
             }
 
-            // SSO Login Button
+            Spacer(modifier = Modifier.height(32.dp))
+
             Button(
-                onClick = {
-                    oidcViewModel.initiateLogin(context as android.app.Activity)
-                },
+                onClick = { viewModel.login(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = PTalkTokens.LoginDimens.FormMarginH)
-                    .height(PTalkTokens.LoginDimens.InputHeight),
-                shape = PTalkTokens.Shapes.LoginButton,
-                enabled = !oidcState.isLoading,
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                enabled = !uiState.isLoading,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1E88E5),
-                    contentColor = PTalkTokens.Colors.White,
-                    disabledContainerColor = PTalkTokens.Colors.SplashDivider
+                    containerColor = TechColors.PTITRed,
+                    contentColor = Color.White
                 )
             ) {
-                if (oidcState.isLoading) {
+                if (uiState.isLoading) {
                     CircularProgressIndicator(
-                        color = PTalkTokens.Colors.White,
-                        modifier = Modifier.size(PTalkTokens.Spacing.XL),
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp),
                         strokeWidth = 2.dp
                     )
                 } else {
                     Text(
-                        text = if (isEnglish) "SIGN IN WITH SSO" else "ĐĂNG NHẬP SSO",
-                        fontSize = PTalkTokens.FontSizes.LoginButton,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
+                        text = "Đăng nhập",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XXL))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Footer
-            Text(
-                text = "2025 Lab CTS Học viện Công nghệ Bưu chính Viễn thông",
-                color = PTalkTokens.Colors.LoginFooter,
-                fontSize = PTalkTokens.FontSizes.LoginFooter,
-                textAlign = TextAlign.Center,
+            // Divider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
+                Text(
+                    text = "hoặc",
+                    color = colors.textSecondary,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // SSO Button (Authentik)
+            OutlinedButton(
+                onClick = { onLaunchSSO() },
                 modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, bottom = PTalkTokens.Spacing.FooterMarginBottom)
-            )
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = TechColors.PTITRed
+                ),
+                border = ButtonDefaults.outlinedButtonBorder.copy(
+                    brush = androidx.compose.ui.graphics.SolidColor(TechColors.PTITRed)
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Key,
+                    contentDescription = "SSO",
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Đăng nhập với SSO",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Chưa có tài khoản? ", color = colors.textSecondary)
+                Text(
+                    text = "Đăng ký ngay",
+                    color = TechColors.PTITRed,
+                    fontWeight = FontWeight.Bold,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { onNavigateToSignup() }
+                )
+            }
         }
     }
 }

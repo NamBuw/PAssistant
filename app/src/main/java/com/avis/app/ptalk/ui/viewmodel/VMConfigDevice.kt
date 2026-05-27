@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.avis.app.ptalk.core.ble.BleClient
 import com.avis.app.ptalk.core.ble.ScannedDevice
 import com.avis.app.ptalk.core.network.CreateDeviceRequest
+import com.avis.app.ptalk.core.network.DashboardApi
+import com.avis.app.ptalk.core.network.DeviceRegisterRequest
 import com.avis.app.ptalk.core.network.IoTPlatformApi
 import com.avis.app.ptalk.domain.control.ControlGateway
 import com.avis.app.ptalk.domain.control.WifiNetwork
@@ -30,7 +32,8 @@ class VMConfigDevice @Inject constructor(
     private val ble: BleClient,
     private val controlGateway: ControlGateway,
     private val deviceRepository: DeviceRepository,
-    private val api: IoTPlatformApi
+    private val api: IoTPlatformApi,
+    private val dashboardApi: DashboardApi
 ) : ViewModel() {
     private val TAG = "VMConfigDevice"
 
@@ -188,7 +191,7 @@ class VMConfigDevice @Inject constructor(
                 deviceRepository.upsert(device)
                 ILog.d(TAG, "configDevice", "Device saved to local DB: name=$deviceName, mac=$address")
 
-                // --- Post to server ---
+                // --- Post to IoT platform server ---
                 try {
                     val result = api.createDevice(
                         CreateDeviceRequest(
@@ -198,10 +201,26 @@ class VMConfigDevice @Inject constructor(
                             buildNumber = device.buildInfo
                         )
                     )
-                    ILog.d(TAG, "configDevice", "Device posted to server: id=${result.id}")
+                    ILog.d(TAG, "configDevice", "Device posted to IoT server: id=${result.id}")
                 } catch (e: Exception) {
                     // Server post failure is non-blocking, device is saved locally
-                    ILog.e(TAG, "configDevice", "Post to server failed: ${e.message}")
+                    ILog.e(TAG, "configDevice", "Post to IoT server failed: ${e.message}")
+                }
+
+                // --- Register device with Dashboard backend ---
+                try {
+                    val dashResult = dashboardApi.registerDevice(
+                        DeviceRegisterRequest(
+                            mac_address = address,
+                            model = deviceName,
+                            device_type = 1,
+                            firmware_version = device.appVersion
+                        )
+                    )
+                    ILog.d(TAG, "configDevice", "Device registered with Dashboard: id=${dashResult.deviceId}")
+                } catch (e: Exception) {
+                    // Dashboard registration failure is non-blocking
+                    ILog.e(TAG, "configDevice", "Dashboard registration failed: ${e.message}")
                 }
 
                 onSuccess()

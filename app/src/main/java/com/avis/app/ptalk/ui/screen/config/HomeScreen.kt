@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
@@ -77,6 +78,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     onNavigateToScan: () -> Unit,
     onNavigateToControl: (String, String) -> Unit,
+    onNavigateToDeviceDetail: (String, String, String?) -> Unit = { _, _, _ -> },
     onSignOut: () -> Unit = {},
     viewModel: VMHome = hiltViewModel()
 ) {
@@ -287,6 +289,22 @@ fun HomeScreen(
                                     text = "MAC: ${device.macAddress}",
                                     fontSize = PTalkTokens.FontSizes.BrandSubtitle,
                                     color = PTalkTokens.Colors.LoginSubheadline
+                                )
+                            }
+                            // Chat history button
+                            IconButton(
+                                onClick = {
+                                    onNavigateToDeviceDetail(
+                                        device.macAddress,
+                                        device.name ?: device.macAddress,
+                                        device.deviceId
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.Chat,
+                                    "Lịch sử chat",
+                                    tint = TechColors.PTITRed.copy(alpha = 0.7f)
                                 )
                             }
                         }

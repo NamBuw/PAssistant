@@ -5,6 +5,7 @@ import com.avis.app.ptalk.BuildConfig
 import com.avis.app.ptalk.core.ble.BleClient
 import com.avis.app.ptalk.core.ble.impl.PTalkBleClient
 import com.avis.app.ptalk.core.network.AuthInterceptor
+import com.avis.app.ptalk.core.network.DashboardApi
 import com.avis.app.ptalk.core.network.IoTPlatformApi
 import com.avis.app.ptalk.core.network.OIDCAuthInterceptor
 import com.avis.app.ptalk.core.network.TokenManager
@@ -79,6 +80,17 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(AuthApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDashboardApi(okHttpClient: OkHttpClient): DashboardApi {
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.DASHBOARD_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(DashboardApi::class.java)
     }
 
     @Provides

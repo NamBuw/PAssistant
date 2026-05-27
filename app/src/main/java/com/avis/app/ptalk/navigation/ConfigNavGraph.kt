@@ -1,11 +1,16 @@
 package com.avis.app.ptalk.navigation
 
+import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.avis.app.ptalk.core.auth.AuthentikAuthManager
 import com.avis.app.ptalk.ui.screen.auth.LoginScreen
+import com.avis.app.ptalk.ui.screen.auth.SignupScreen
+import com.avis.app.ptalk.ui.screen.config.DeviceDetailScreen
 import com.avis.app.ptalk.ui.screen.config.HomeScreen
 import com.avis.app.ptalk.ui.screen.config.ScanDeviceScreen
 
@@ -34,11 +39,35 @@ fun ConfigAppNavGraph(
             )
         }
         composable(Route.LOGIN) {
+            val context = LocalContext.current
             LoginScreen(
                 onNavigateToHome = {
                     navController.navigate(Route.HOME) {
                         popUpTo(Route.LOGIN) { inclusive = true }
                     }
+                },
+                onNavigateToSignup = {
+                    navController.navigate(Route.SIGNUP)
+                },
+                onLaunchSSO = {
+                    val activity = context as? Activity
+                    if (activity != null) {
+                        val authManager = AuthentikAuthManager(context)
+                        authManager.login(activity, 1001)
+                    }
+                }
+            )
+        }
+
+        composable(Route.SIGNUP) {
+            SignupScreen(
+                onNavigateToHome = {
+                    navController.navigate(Route.HOME) {
+                        popUpTo(Route.LOGIN) { inclusive = true }
+                    }
+                },
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -51,6 +80,14 @@ fun ConfigAppNavGraph(
                 },
                 onNavigateToControl = { macAddress, deviceName ->
                     navController.navigate("${Route.CONTROL}/$macAddress/$deviceName")
+                },
+                onNavigateToDeviceDetail = { macAddress, deviceName, deviceId ->
+                    val route = if (deviceId != null) {
+                        "${Route.DEVICE_DETAIL}/$macAddress/$deviceName?deviceId=$deviceId"
+                    } else {
+                        "${Route.DEVICE_DETAIL}/$macAddress/$deviceName"
+                    }
+                    navController.navigate(route)
                 },
                 onSignOut = {
                     navController.navigate(Route.LOGIN) {
@@ -78,6 +115,19 @@ fun ConfigAppNavGraph(
             com.avis.app.ptalk.ui.screen.config.ControlScreen(
                 macAddress = macAddress,
                 deviceName = deviceName,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Device detail with chat history
+        composable("${Route.DEVICE_DETAIL}/{macAddress}/{deviceName}?deviceId={deviceId}") { backStackEntry ->
+            val macAddress = backStackEntry.arguments?.getString("macAddress") ?: ""
+            val deviceName = backStackEntry.arguments?.getString("deviceName") ?: "PTalk Device"
+            val deviceId = backStackEntry.arguments?.getString("deviceId")
+            DeviceDetailScreen(
+                macAddress = macAddress,
+                deviceName = deviceName,
+                deviceId = deviceId,
                 onBack = { navController.popBackStack() }
             )
         }

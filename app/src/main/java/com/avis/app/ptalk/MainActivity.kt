@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.avis.app.ptalk.core.network.TokenManager
+import com.avis.app.ptalk.core.network.authentik.OIDCSessionManager
 import com.avis.app.ptalk.navigation.ConfigAppNavGraph
 import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.theme.AppColors
@@ -35,6 +36,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var tokenManager: TokenManager
 
+    @Inject
+    lateinit var oidcSessionManager: OIDCSessionManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -47,7 +51,7 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { false }
 
-        val startDest = if (tokenManager.getToken() != null) Route.HOME else Route.LOGIN
+        val startDest = if (oidcSessionManager.isAuthorized()) Route.HOME else Route.LOGIN
 
         enableEdgeToEdge()
         setContent {

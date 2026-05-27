@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.avis.app.ptalk.core.network.DeviceResponse
 import com.avis.app.ptalk.core.network.IoTPlatformApi
-import com.avis.app.ptalk.domain.data.local.repo.AuthRepository
+import com.avis.app.ptalk.domain.data.local.repo.OIDCAuthRepository
 import com.avis.app.ptalk.domain.data.local.repo.DeviceRepository
 import com.avis.app.ptalk.domain.model.Device
 import com.avis.app.ptalk.domain.service.DeviceControlService
@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class VMHome @Inject constructor(
     private val api: IoTPlatformApi,
-    private val authRepository: AuthRepository,
+    private val oidcAuthRepository: OIDCAuthRepository,
     private val deviceRepository: DeviceRepository,
     private val controlService: DeviceControlService
 ) : ViewModel() {
@@ -84,11 +84,11 @@ class VMHome @Inject constructor(
     }
 
     fun signOut() {
-        authRepository.logout()
+        oidcAuthRepository.logout()
     }
 
-    fun getUsername(): String? = authRepository.getUsername()
-    fun getEmail(): String? = authRepository.getEmail()
-    fun getPhone(): String? = authRepository.getPhone()
-    fun getUserId(): String? = authRepository.getUserId()
+    fun getUsername(): String? = oidcAuthRepository.getUserProfile()?.name ?: oidcAuthRepository.getUserProfile()?.preferredUsername
+    fun getEmail(): String? = oidcAuthRepository.getUserProfile()?.email
+    fun getPhone(): String? = null
+    fun getUserId(): String? = oidcAuthRepository.getUserProfile()?.sub
 }

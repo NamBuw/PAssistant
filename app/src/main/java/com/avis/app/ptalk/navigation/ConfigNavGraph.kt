@@ -6,7 +6,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.avis.app.ptalk.ui.screen.auth.LoginScreen
-import com.avis.app.ptalk.ui.screen.auth.SignupScreen
 import com.avis.app.ptalk.ui.screen.config.HomeScreen
 import com.avis.app.ptalk.ui.screen.config.ScanDeviceScreen
 
@@ -40,22 +39,6 @@ fun ConfigAppNavGraph(
                     navController.navigate(Route.HOME) {
                         popUpTo(Route.LOGIN) { inclusive = true }
                     }
-                },
-                onNavigateToSignup = {
-                    navController.navigate(Route.SIGNUP)
-                }
-            )
-        }
-        
-        composable(Route.SIGNUP) {
-            SignupScreen(
-                onNavigateToHome = {
-                    navController.navigate(Route.HOME) {
-                        popUpTo(Route.LOGIN) { inclusive = true }
-                    }
-                },
-                onNavigateBack = {
-                    navController.popBackStack()
                 }
             )
         }

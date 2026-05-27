@@ -90,3 +90,32 @@ class AuthInterceptor(private val tokenManager: TokenManager) : Interceptor {
         return chain.proceed(originalRequest)
     }
 }
+
+/**
+ * OIDC-aware interceptor that reads tokens from OIDCSessionManager.
+ * Token refresh is handled at the repository/ViewModel layer before API calls.
+ */
+class OIDCAuthInterceptor(
+    private val sessionManager: com.avis.app.ptalk.core.network.authentik.OIDCSessionManager
+) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val originalRequest = chain.request()
+
+        // Skip adding token to auth/OIDC endpoints
+        if (originalRequest.url.encodedPath.contains("/auth/login") ||
+            originalRequest.url.encodedPath.contains("/auth/signup") ||
+            originalRequest.url.encodedPath.contains("/application/o/")) {
+            return chain.proceed(originalRequest)
+        }
+
+        val token = sessionManager.getAccessToken()
+        if (token != null) {
+            val newRequest = originalRequest.newBuilder()
+                .header("Authorization", "Bearer $token")
+                .build()
+            return chain.proceed(newRequest)
+        }
+
+        return chain.proceed(originalRequest)
+    }
+}

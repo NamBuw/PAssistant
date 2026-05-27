@@ -19,6 +19,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        manifestPlaceholders["appAuthRedirectScheme"] = "app"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -49,6 +50,11 @@ android {
     defaultConfig {
         buildConfigField("String", "API_BASE_URL", "\"http://171.226.10.121:8000/\"")
         buildConfigField("String", "MQTT_SERVER_URI", "\"tcp://171.226.10.121:8443\"")
+        buildConfigField("String", "AUTHENTIK_ISSUER", "\"https://auth.ctslab.net/application/o/p-assistant/\"")
+        buildConfigField("String", "AUTHENTIK_CLIENT_ID", "\"p-assistant-client\"")
+        buildConfigField("String", "AUTHENTIK_CLIENT_SECRET", "\"p-assistant-secret-key\"")
+        buildConfigField("String", "AUTHENTIK_REDIRECT_URI", "\"app://passistant/callback\"")
+        buildConfigField("String", "AUTHENTIK_SCOPES", "\"openid email profile roles user_type assigned_products\"")
     }
 }
 
@@ -98,4 +104,5 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.org.eclipse.paho.mqttv5.client)
+    implementation(libs.appauth)
 }

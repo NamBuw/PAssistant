@@ -7,6 +7,7 @@ import com.avis.app.ptalk.core.ble.impl.PTalkBleClient
 import com.avis.app.ptalk.core.network.AuthInterceptor
 import com.avis.app.ptalk.core.network.IoTPlatformApi
 import com.avis.app.ptalk.core.network.TokenManager
+import com.avis.app.ptalk.core.network.AuthApi
 import com.avis.app.ptalk.core.mqtt.PTalkMqttClient
 import com.avis.app.ptalk.domain.control.BleControlGateway
 import com.avis.app.ptalk.domain.control.ControlGateway
@@ -68,7 +69,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(api: IoTPlatformApi, tokenManager: TokenManager): AuthRepository {
+    fun provideAuthApi(okHttpClient: OkHttpClient): AuthApi {
+        return Retrofit.Builder()
+            .baseUrl("https://auth.ctslab.net/")
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AuthApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(api: AuthApi, tokenManager: TokenManager): AuthRepository {
         return AuthRepository(api, tokenManager)
     }
 

@@ -1,8 +1,8 @@
 package com.avis.app.ptalk.domain.data.local.repo
 
-import com.avis.app.ptalk.core.network.IoTPlatformApi
-import com.avis.app.ptalk.core.network.LoginRequest
-import com.avis.app.ptalk.core.network.SignupRequest
+import com.avis.app.ptalk.core.network.AuthApi
+import com.avis.app.ptalk.core.network.CentralLoginRequest
+import com.avis.app.ptalk.core.network.CentralRegisterRequest
 import com.avis.app.ptalk.core.network.TokenManager
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthRepository @Inject constructor(
-    private val api: IoTPlatformApi,
+    private val api: AuthApi,
     private val tokenManager: TokenManager
 ) {
     val isLoggedIn: StateFlow<Boolean> = tokenManager.isLoggedIn
@@ -19,27 +19,27 @@ class AuthRepository @Inject constructor(
         return try {
             android.util.Log.d("API", "Login request username=$username")
 
-            val response = api.login(LoginRequest(username, password))
+            val response = api.login(CentralLoginRequest(username, password))
 
             android.util.Log.d("API", "Login success, got tokens")
 
             // Extract userId from JWT 'sub' claim
-            val userId = extractUserIdFromJwt(response.access_token)
+            val userId = extractUserIdFromJwt(response.accessToken)
             android.util.Log.d("API", "UserID from JWT=$userId")
 
             // Save tokens
-            tokenManager.saveToken(response.access_token, response.refresh_token, userId)
+            tokenManager.saveToken(response.accessToken, response.refreshToken, userId)
             // Save username from login form as fallback
             tokenManager.saveUserInfo(username = username, email = null, phone = null)
 
-            // Fetch full user profile from /api/v1/me
+            // Fetch full user profile from /auth/me
             try {
-                val userInfo = api.getMe()
+                val userInfo = api.getMe("Bearer " + response.accessToken)
                 android.util.Log.d("API", "User info: $userInfo")
                 tokenManager.saveUserInfo(
                     username = userInfo.username,
                     email = userInfo.email,
-                    phone = userInfo.phone_number
+                    phone = null
                 )
             } catch (e: Exception) {
                 android.util.Log.w("API", "Could not fetch user profile, using login username", e)
@@ -73,33 +73,25 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signup(
-            authUsername: String,
-            email: String,
-            password: String,
-            username: String,
-            phone: String?
-        ): Result<Unit> {
+        authUsername: String,
+        email: String,
+        password: String,
+        username: String,
+        phone: String?
+    ): Result<Unit> {
         return try {
-            val request = SignupRequest(
-                auth_username = authUsername,
-                username = username,
+            val request = CentralRegisterRequest(
+                username = authUsername,
+                email = email,
                 password = password,
-                email = email,
-                phone_number = phone
+                displayName = username
             )
 
-            val response = api.signup(request)
+            // Register user in Central SSO
+            api.register(request)
 
-            // Signup also returns TokenResponse
-            val userId = extractUserIdFromJwt(response.access_token)
-            tokenManager.saveToken(response.access_token, response.refresh_token, userId)
-            tokenManager.saveUserInfo(
-                username = username,
-                email = email,
-                phone = phone
-            )
-
-            Result.success(Unit)
+            // Auto-login to preserve compatibility with existing token storage and view flows
+            login(authUsername, password)
 
         } catch (e: Exception) {
             if (e is retrofit2.HttpException) {

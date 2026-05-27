@@ -149,11 +149,10 @@ fun HomeScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.background)
     ) {
-        // Animated background
-        HomeBackground(colors.isDark)
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -170,48 +169,28 @@ fun HomeScreen(
                 IconButton(
                     onClick = { showProfileSheet = true },
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(colors.card.copy(alpha = 0.7f), CircleShape)
+                        .size(44.dp)
+                        .background(Color.Transparent)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Tài khoản",
-                        tint = TechColors.PTITRed
+                        tint = colors.textPrimary,
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // PTIT University Logo
-            Image(
-                painter = painterResource(id = R.drawable.logo_ptit),
-                contentDescription = "PTIT University Logo",
-                modifier = Modifier.size(100.dp)
-            )
-            
             Spacer(modifier = Modifier.height(16.dp))
             
-            Text(
-                text = "HỌC VIỆN CÔNG NGHỆ",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.sp
-                ),
-                color = TechColors.PTITRed,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "BƯU CHÍNH VIỄN THÔNG",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.sp
-                ),
-                color = TechColors.PTITRed,
-                textAlign = TextAlign.Center
+            // CTS / PTIT Logo
+            Image(
+                painter = painterResource(id = R.drawable.logo_cts_main),
+                contentDescription = "CTS Logo",
+                modifier = Modifier.height(60.dp)
             )
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(40.dp))
             
             // Devices Section
             Text(
@@ -236,9 +215,9 @@ fun HomeScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = colors.card)
+                    colors = CardDefaults.cardColors(containerColor = colors.card),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-
                     Text(
                         "Bạn chưa có thiết bị nào. Nhấn Bắt đầu cấu hình để thêm mới.",
                         color = colors.textSecondary,
@@ -251,23 +230,23 @@ fun HomeScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 12.dp)
+                            .padding(bottom = 16.dp)
                             .clickable { onNavigateToControl(device.macAddress, device.name ?: device.macAddress) },
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = colors.card),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
                     ) {
                         Row(
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier.padding(20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
                                     .size(48.dp)
-                                    .background(TechColors.PTITRed.copy(alpha = 0.1f), CircleShape),
+                                    .background(colors.cardHighlight, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Default.TouchApp, null, tint = TechColors.PTITRed)
+                                Icon(Icons.Default.TouchApp, null, tint = colors.textPrimary)
                             }
                             Spacer(Modifier.width(16.dp))
                             Column(modifier = Modifier.weight(1f)) {
@@ -276,6 +255,7 @@ fun HomeScreen(
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                     color = colors.textPrimary
                                 )
+                                Spacer(Modifier.height(4.dp))
                                 Text(
                                     text = "MAC: ${device.macAddress}",
                                     style = MaterialTheme.typography.bodySmall,
@@ -295,9 +275,9 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = TechColors.PTITRed,
+                    containerColor = colors.primary,
                     contentColor = Color.White
                 )
             ) {
@@ -318,132 +298,6 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
-}
-
-@Composable
-private fun GuideStep(
-    stepNumber: Int,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    description: String,
-    colors: com.avis.app.ptalk.ui.theme.AppColors
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
-    ) {
-        // Step number circle
-        Box(
-            modifier = Modifier
-                .size(28.dp)
-                .background(
-                    color = TechColors.PTITRed,
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stepNumber.toString(),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = Color.White
-            )
-        }
-        
-        Spacer(modifier = Modifier.width(12.dp))
-        
-        Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = colors.textSecondary,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    color = colors.textPrimary
-                )
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.textSecondary
-            )
-        }
-    }
-}
-
-@Composable
-private fun HomeBackground(isDark: Boolean) {
-    val infiniteTransition = rememberInfiniteTransition(label = "homeBg")
-    val animatedOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(25000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "bgOffset"
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = if (isDark) {
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            TechColors.DarkBackground,
-                            Color(0xFF0D1520),
-                            TechColors.DarkBackground
-                        )
-                    )
-                } else {
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            TechColors.LightBackground,
-                            Color(0xFFE8EEF5),
-                            TechColors.LightBackground
-                        )
-                    )
-                }
-            )
-            .drawBehind {
-                // Subtle glow effects
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            TechColors.PTITRed.copy(alpha = if (isDark) 0.08f else 0.05f),
-                            Color.Transparent
-                        ),
-                        center = Offset(size.width * 0.3f, animatedOffset % size.height),
-                        radius = 300f
-                    ),
-                    center = Offset(size.width * 0.3f, animatedOffset % size.height),
-                    radius = 300f
-                )
-                
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            TechColors.OrangeAccent.copy(alpha = if (isDark) 0.06f else 0.04f),
-                            Color.Transparent
-                        ),
-                        center = Offset(size.width * 0.7f, size.height - (animatedOffset % size.height)),
-                        radius = 350f
-                    ),
-                    center = Offset(size.width * 0.7f, size.height - (animatedOffset % size.height)),
-                    radius = 350f
-                )
-            }
-    )
 }
 
 @Composable
@@ -468,8 +322,8 @@ private fun ProfileSheetContent(
             modifier = Modifier
                 .size(72.dp)
                 .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(TechColors.PTITRed, TechColors.OrangeAccent)
+                    brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                        colors = listOf(TechColors.PTITRed, TechColors.PTITRed.copy(alpha = 0.7f))
                     ),
                     shape = CircleShape
                 ),

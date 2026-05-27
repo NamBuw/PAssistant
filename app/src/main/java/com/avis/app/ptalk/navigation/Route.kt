@@ -1,6 +1,8 @@
 package com.avis.app.ptalk.navigation
 
 object Route {
+    const val SPLASH: String = "splash"
+    
     // Config-only app routes
     const val HOME: String = "home"
     const val SCAN_DEVICE: String = "scan_device"

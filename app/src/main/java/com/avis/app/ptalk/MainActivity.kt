@@ -72,7 +72,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     ConfigAppNavGraph(
                         navController = navController,
-                        startDestination = startDest,
+                        startDestination = Route.SPLASH,
+                        nextDestination = startDest,
                         modifier = Modifier.fillMaxSize()
                     )
                 }

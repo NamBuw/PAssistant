@@ -16,7 +16,8 @@ import com.avis.app.ptalk.ui.screen.config.ScanDeviceScreen
 @Composable
 fun ConfigAppNavGraph(
     navController: NavHostController,
-    startDestination: String = Route.LOGIN,
+    startDestination: String = Route.SPLASH,
+    nextDestination: String = Route.LOGIN,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -24,6 +25,15 @@ fun ConfigAppNavGraph(
         startDestination = startDestination,
         modifier = modifier
     ) {
+        composable(Route.SPLASH) {
+            com.avis.app.ptalk.ui.screen.auth.SplashScreen(
+                onSplashComplete = {
+                    navController.navigate(nextDestination) {
+                        popUpTo(Route.SPLASH) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable(Route.LOGIN) {
             LoginScreen(
                 onNavigateToHome = {

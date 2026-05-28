@@ -3,7 +3,7 @@ package com.avis.app.ptalk.ui.viewmodel.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.avis.app.ptalk.core.network.DashboardApi
-import com.avis.app.ptalk.core.network.SignupRequest
+import com.avis.app.ptalk.core.network.DashboardSignupRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +44,7 @@ class VMSignup @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = dashboardApi.signup(
-                    SignupRequest(username, email, password, confirmPassword)
+                    DashboardSignupRequest(username, email, password, confirmPassword)
                 )
                 if (response.success) {
                     _uiState.value = UiState(success = true)

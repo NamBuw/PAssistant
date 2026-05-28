@@ -8,14 +8,14 @@ import retrofit2.http.Query
 
 // --- User Registration (Authentik SSO) ---
 
-data class SignupRequest(
+data class DashboardSignupRequest(
     val username: String,
     val email: String,
     val password: String,
     val confirmPassword: String
 )
 
-data class SignupResponse(
+data class DashboardSignupResponse(
     val success: Boolean,
     val user: SignupUser? = null,
     val error: String? = null
@@ -145,7 +145,7 @@ data class DeviceUserLinkResponse(
 interface DashboardApi {
 
     @POST("api/auth/signup")
-    suspend fun signup(@Body request: SignupRequest): SignupResponse
+    suspend fun signup(@Body request: DashboardSignupRequest): DashboardSignupResponse
 
     @POST("api/v1/devices/register")
     suspend fun registerDevice(

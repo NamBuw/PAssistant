@@ -1,6 +1,9 @@
 package com.avis.app.ptalk.navigation
 
 import android.app.Activity
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -8,7 +11,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.avis.app.ptalk.core.auth.AuthentikAuthManager
+import com.avis.app.ptalk.core.network.TokenManager
 import com.avis.app.ptalk.ui.screen.auth.LoginScreen
+import net.openid.appauth.AuthorizationException
+import net.openid.appauth.AuthorizationResponse
 import com.avis.app.ptalk.ui.screen.config.DeviceDetailScreen
 import com.avis.app.ptalk.ui.screen.config.HomeScreen
 import com.avis.app.ptalk.ui.screen.config.ScanDeviceScreen
@@ -39,6 +45,35 @@ fun ConfigAppNavGraph(
         }
         composable(Route.LOGIN) {
             val context = LocalContext.current
+            val authManager = AuthentikAuthManager(context)
+
+            val authLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                val data = result.data ?: return@rememberLauncherForActivityResult
+                val resp = AuthorizationResponse.fromIntent(data)
+                val ex = AuthorizationException.fromIntent(data)
+
+                if (ex != null || resp == null) return@rememberLauncherForActivityResult
+
+                authManager.handleAuthorizationResponse(
+                    data = data,
+                    onSuccess = { authResult ->
+                        TokenManager.init(context)
+                        TokenManager.saveToken(
+                            accessToken = authResult.accessToken,
+                            refreshToken = authResult.refreshToken,
+                            userId = authResult.userId
+                        )
+                        TokenManager.saveUserInfo(username = authResult.name, email = authResult.email, phone = null)
+                        navController.navigate(Route.HOME) {
+                            popUpTo(Route.LOGIN) { inclusive = true }
+                        }
+                    },
+                    onError = { /* ignore */ }
+                )
+            }
+
             LoginScreen(
                 onNavigateToHome = {
                     navController.navigate(Route.HOME) {
@@ -49,11 +84,7 @@ fun ConfigAppNavGraph(
                     // Signup handled via Authentik - no in-app signup needed
                 },
                 onLaunchSSO = {
-                    val activity = context as? Activity
-                    if (activity != null) {
-                        val authManager = AuthentikAuthManager(context)
-                        authManager.login(activity, 1001)
-                    }
+                    authLauncher.launch(authManager.getAuthorizationIntent())
                 }
             )
         }

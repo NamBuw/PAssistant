@@ -1,6 +1,5 @@
 package com.avis.app.ptalk.core.auth
 
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import net.openid.appauth.AuthorizationException
@@ -54,21 +53,20 @@ class AuthentikAuthManager(private val context: Context) {
     }
 
     /**
-     * Launch the Authentik login flow.
-     * Opens a Custom Tab (Chrome) with the Authentik login page.
+     * Get the authorization intent for launching with ActivityResult API.
+     */
+    fun getAuthorizationIntent(): Intent {
+        val authRequest = buildAuthorizationRequest()
+        return authService.getAuthorizationRequestIntent(authRequest)
+    }
+
+    /**
+     * Launch the Authentik login flow (legacy).
      */
     fun login(activity: android.app.Activity, requestCode: Int) {
         val authRequest = buildAuthorizationRequest()
-
-        val callbackIntent = Intent(context, AuthCallbackActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            requestCode,
-            callbackIntent,
-            PendingIntent.FLAG_MUTABLE
-        )
-
-        authService.performAuthorizationRequest(authRequest, pendingIntent)
+        val authIntent = authService.getAuthorizationRequestIntent(authRequest)
+        activity.startActivityForResult(authIntent, requestCode)
     }
 
     /**

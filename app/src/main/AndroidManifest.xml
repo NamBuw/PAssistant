@@ -36,18 +36,12 @@
             </intent-filter>
         </activity>
 
-        <!-- AuthCallbackActivity — receives Authentik OIDC redirect -->
+        <!-- AuthCallbackActivity — internal only, no intent-filter
+             AppAuth intercepts the redirect via AuthorizationManagementActivity -->
         <activity
             android:name=".core.auth.AuthCallbackActivity"
-            android:exported="true"
+            android:exported="false"
             android:noHistory="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="app" android:host="passistant" android:path="/callback" />
-            </intent-filter>
-        </activity>
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
     </application>
 </manifest>

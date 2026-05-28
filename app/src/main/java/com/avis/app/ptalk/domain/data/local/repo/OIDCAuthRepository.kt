@@ -76,10 +76,10 @@ class OIDCAuthRepository @Inject constructor(
                 .setAuthorizationCode(authResponse.authorizationCode)
                 .setRedirectUri(authResponse.request.redirectUri)
                 .setCodeVerifier(authResponse.request.codeVerifier)
-                .setAdditionalParameters(mapOf("client_secret" to AuthentikConfig.CLIENT_SECRET))
                 .build()
 
-            authService.performTokenRequest(tokenRequest) { tokenResponse, ex ->
+            val clientAuth = net.openid.appauth.ClientSecretBasic(AuthentikConfig.CLIENT_SECRET)
+            authService.performTokenRequest(tokenRequest, clientAuth) { tokenResponse, ex ->
                 if (tokenResponse != null) {
                     sessionManager.updateAfterTokenResponse(tokenResponse, ex)
                     Log.d(TAG, "Token exchange successful")

@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -11,7 +13,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.avis.app.ptalk.core.auth.AuthentikAuthManager
 import com.avis.app.ptalk.core.network.TokenManager
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.avis.app.ptalk.ui.screen.auth.LoginScreen
+import com.avis.app.ptalk.ui.screen.auth.SignupScreen
+import com.avis.app.ptalk.ui.viewmodel.auth.VMSignup
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationResponse
 import com.avis.app.ptalk.ui.screen.config.DeviceDetailScreen
@@ -80,11 +85,27 @@ fun ConfigAppNavGraph(
                     }
                 },
                 onNavigateToSignup = {
-                    // Signup handled via Authentik - no in-app signup needed
+                    navController.navigate(Route.SIGNUP)
                 },
                 onLaunchSSO = {
                     authLauncher.launch(authManager.getAuthorizationIntent())
                 }
+            )
+        }
+
+        composable(Route.SIGNUP) {
+            val signupViewModel: VMSignup = hiltViewModel()
+            val uiState by signupViewModel.uiState.collectAsState()
+
+            SignupScreen(
+                uiState = uiState,
+                onRegister = { username, email, password, confirmPassword ->
+                    signupViewModel.register(username, email, password, confirmPassword)
+                },
+                onNavigateToLogin = {
+                    navController.popBackStack()
+                },
+                onClearError = { signupViewModel.clearError() }
             )
         }
 

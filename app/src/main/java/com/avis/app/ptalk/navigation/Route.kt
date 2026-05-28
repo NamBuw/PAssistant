@@ -8,6 +8,7 @@ object Route {
     const val SCAN_DEVICE: String = "scan_device"
     
     const val LOGIN: String = "login"
+    const val SIGNUP: String = "signup"
     const val CONTROL: String = "control"
     const val DEVICE: String = "device"
     const val BAN_KEYWORD: String = "ban_keyword"

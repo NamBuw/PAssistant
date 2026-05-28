@@ -43,7 +43,7 @@ class VMDeviceDetail @Inject constructor(
             try {
                 val response = dashboardApi.getChatSessions(
                     deviceId = deviceId,
-                    productSource = "ptalk",
+                    productSource = null,
                     limit = 50
                 )
                 _uiState.value = _uiState.value.copy(

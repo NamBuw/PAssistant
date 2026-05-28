@@ -69,7 +69,14 @@ fun ConfigAppNavGraph(
                             refreshToken = authResult.refreshToken,
                             userId = authResult.userId
                         )
-                        tokenManager.saveUserInfo(username = authResult.name, email = authResult.email, phone = null)
+                        val displayName = authResult.name.takeIf { !it.isNullOrBlank() }
+                            ?: authResult.email?.substringBefore("@")
+                            ?: "User"
+                        tokenManager.saveUserInfo(
+                            username = displayName,
+                            email = authResult.email,
+                            phone = null
+                        )
                         navController.navigate(Route.HOME) {
                             popUpTo(Route.LOGIN) { inclusive = true }
                         }

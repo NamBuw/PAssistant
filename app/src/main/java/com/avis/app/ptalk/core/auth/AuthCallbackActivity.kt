@@ -32,12 +32,12 @@ class AuthCallbackActivity : AppCompatActivity() {
             data = intent,
             onSuccess = { result ->
                 // Save tokens using existing TokenManager
-                tokenManager.saveTokens(
+                tokenManager.saveToken(
                     accessToken = result.accessToken,
                     refreshToken = result.refreshToken,
-                    userId = result.userId,
-                    username = result.name
+                    userId = result.userId
                 )
+                tokenManager.saveUserInfo(username = result.name, email = result.email, phone = null)
 
                 // Navigate to main screen
                 val mainIntent = Intent(this, MainActivity::class.java).apply {

@@ -63,6 +63,7 @@ import com.avis.app.ptalk.LocalAppColors
 import com.avis.app.ptalk.R
 import com.avis.app.ptalk.ui.theme.AppColors
 import com.avis.app.ptalk.ui.theme.PTalkTokens
+import com.avis.app.ptalk.ui.theme.TechColors
 import com.avis.app.ptalk.ui.viewmodel.VMHome
 import com.avis.app.ptalk.domain.model.Device
 import androidx.compose.material3.CircularProgressIndicator

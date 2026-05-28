@@ -92,11 +92,12 @@ class AuthInterceptor(private val tokenManager: TokenManager) : Interceptor {
 }
 
 /**
- * OIDC-aware interceptor that reads tokens from OIDCSessionManager.
- * Token refresh is handled at the repository/ViewModel layer before API calls.
+ * OIDC-aware interceptor that reads tokens from OIDCSessionManager,
+ * with fallback to TokenManager for legacy login path.
  */
 class OIDCAuthInterceptor(
-    private val sessionManager: com.avis.app.ptalk.core.network.authentik.OIDCSessionManager
+    private val sessionManager: com.avis.app.ptalk.core.network.authentik.OIDCSessionManager,
+    private val tokenManager: TokenManager? = null
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
@@ -109,6 +110,7 @@ class OIDCAuthInterceptor(
         }
 
         val token = sessionManager.getAccessToken()
+            ?: tokenManager?.getToken()
         if (token != null) {
             val newRequest = originalRequest.newBuilder()
                 .header("Authorization", "Bearer $token")

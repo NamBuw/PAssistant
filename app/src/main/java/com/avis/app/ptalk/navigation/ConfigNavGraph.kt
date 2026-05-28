@@ -1,6 +1,5 @@
 package com.avis.app.ptalk.navigation
 
-import android.app.Activity
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -59,13 +58,13 @@ fun ConfigAppNavGraph(
                 authManager.handleAuthorizationResponse(
                     data = data,
                     onSuccess = { authResult ->
-                        TokenManager.init(context)
-                        TokenManager.saveToken(
+                        val tokenManager = TokenManager(context)
+                        tokenManager.saveToken(
                             accessToken = authResult.accessToken,
                             refreshToken = authResult.refreshToken,
                             userId = authResult.userId
                         )
-                        TokenManager.saveUserInfo(username = authResult.name, email = authResult.email, phone = null)
+                        tokenManager.saveUserInfo(username = authResult.name, email = authResult.email, phone = null)
                         navController.navigate(Route.HOME) {
                             popUpTo(Route.LOGIN) { inclusive = true }
                         }

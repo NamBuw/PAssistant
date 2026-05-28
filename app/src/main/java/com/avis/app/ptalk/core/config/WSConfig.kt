@@ -15,9 +15,9 @@ class WSConfig(context: Context) {
         private const val KEY_SERVER_PORT = "server_port"
 
         // Default values
-        const val DEFAULT_HOST = "171.226.10.121"
-        const val DEFAULT_PORT = 8000
-        const val DEFAULT_WS_PATH = "/ws"
+        const val DEFAULT_HOST = "auth.ctslab.net"
+        const val DEFAULT_PORT = 443
+        const val DEFAULT_WS_PATH = "/v2/ws"
     }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -59,7 +59,7 @@ class WSConfig(context: Context) {
     private fun buildServerUrl(): String {
         val host = getServerHost()
         val port = getServerPort()
-        return "ws://$host:$port$DEFAULT_WS_PATH"
+        return if (port == 443) "wss://$host$DEFAULT_WS_PATH" else "ws://$host:$port$DEFAULT_WS_PATH"
     }
 
     private fun updateServerUrl() {

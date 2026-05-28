@@ -48,8 +48,8 @@ android {
     }
 
     defaultConfig {
-        buildConfigField("String", "API_BASE_URL", "\"http://171.226.10.121:8000/\"")
-        buildConfigField("String", "DASHBOARD_BASE_URL", "\"http://171.226.10.121:3000/\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://auth.ctslab.net/\"")
+        buildConfigField("String", "DASHBOARD_BASE_URL", "\"https://auth.ctslab.net/\"")
         buildConfigField("String", "MQTT_SERVER_URI", "\"tcp://171.226.10.121:8443\"")
         buildConfigField("String", "AUTHENTIK_ISSUER", "\"https://auth.ctslab.net/application/o/p-assistant/\"")
         buildConfigField("String", "AUTHENTIK_CLIENT_ID", "\"p-assistant-client\"")

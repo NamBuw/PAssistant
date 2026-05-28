@@ -204,7 +204,7 @@ class DeviceControlService(
         // 2. Send via HTTP (Legacy/Fallback)
         scope.launch {
             try {
-                val url = java.net.URL("http://171.226.10.121:8000/v2/volume/$deviceId/$volume")
+                val url = java.net.URL("https://auth.ctslab.net/v2/volume/$deviceId/$volume")
                 val connection = url.openConnection() as java.net.HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.connectTimeout = 5000

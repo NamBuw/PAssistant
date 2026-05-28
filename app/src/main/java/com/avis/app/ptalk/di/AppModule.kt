@@ -4,18 +4,15 @@ import android.content.Context
 import com.avis.app.ptalk.BuildConfig
 import com.avis.app.ptalk.core.ble.BleClient
 import com.avis.app.ptalk.core.ble.impl.PTalkBleClient
-import com.avis.app.ptalk.core.network.AuthInterceptor
 import com.avis.app.ptalk.core.network.DashboardApi
 import com.avis.app.ptalk.core.network.IoTPlatformApi
 import com.avis.app.ptalk.core.network.OIDCAuthInterceptor
 import com.avis.app.ptalk.core.network.TokenManager
-import com.avis.app.ptalk.core.network.AuthApi
 import com.avis.app.ptalk.core.network.authentik.OIDCSessionManager
 import com.avis.app.ptalk.core.mqtt.PTalkMqttClient
 import com.avis.app.ptalk.domain.control.BleControlGateway
 import com.avis.app.ptalk.domain.control.ControlGateway
 import com.avis.app.ptalk.domain.service.DeviceControlService
-import com.avis.app.ptalk.domain.data.local.repo.AuthRepository
 import net.openid.appauth.AuthorizationService
 import dagger.Module
 import dagger.Provides
@@ -73,17 +70,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthApi(okHttpClient: OkHttpClient): AuthApi {
-        return Retrofit.Builder()
-            .baseUrl("https://auth.ctslab.net/")
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(AuthApi::class.java)
-    }
-
-    @Provides
-    @Singleton
     fun provideDashboardApi(okHttpClient: OkHttpClient): DashboardApi {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.DASHBOARD_BASE_URL)
@@ -91,12 +77,6 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(DashboardApi::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAuthRepository(api: AuthApi, tokenManager: TokenManager): AuthRepository {
-        return AuthRepository(api, tokenManager)
     }
 
     // ── Authentik OIDC providers ──────────────────────────────────────

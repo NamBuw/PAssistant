@@ -9,7 +9,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.avis.app.ptalk.core.auth.AuthentikAuthManager
 import com.avis.app.ptalk.ui.screen.auth.LoginScreen
-import com.avis.app.ptalk.ui.screen.auth.SignupScreen
 import com.avis.app.ptalk.ui.screen.config.DeviceDetailScreen
 import com.avis.app.ptalk.ui.screen.config.HomeScreen
 import com.avis.app.ptalk.ui.screen.config.ScanDeviceScreen
@@ -47,7 +46,7 @@ fun ConfigAppNavGraph(
                     }
                 },
                 onNavigateToSignup = {
-                    navController.navigate(Route.SIGNUP)
+                    // Signup handled via Authentik - no in-app signup needed
                 },
                 onLaunchSSO = {
                     val activity = context as? Activity
@@ -55,19 +54,6 @@ fun ConfigAppNavGraph(
                         val authManager = AuthentikAuthManager(context)
                         authManager.login(activity, 1001)
                     }
-                }
-            )
-        }
-
-        composable(Route.SIGNUP) {
-            SignupScreen(
-                onNavigateToHome = {
-                    navController.navigate(Route.HOME) {
-                        popUpTo(Route.LOGIN) { inclusive = true }
-                    }
-                },
-                onNavigateBack = {
-                    navController.popBackStack()
                 }
             )
         }

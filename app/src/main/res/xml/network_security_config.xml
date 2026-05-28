@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <!-- Production: auth.ctslab.net uses HTTPS (trusted by default) -->
-    <!-- Allow cleartext for local dev only -->
+    <!-- Allow cleartext for local dev and PTalk server (MQTT, HTTP) -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">10.0.2.2</domain>
         <domain includeSubdomains="true">localhost</domain>
+        <domain>171.226.10.121</domain>
     </domain-config>
 </network-security-config>

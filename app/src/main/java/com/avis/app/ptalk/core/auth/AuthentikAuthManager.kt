@@ -93,6 +93,16 @@ class AuthentikAuthManager(private val context: Context) {
         }
 
         val tokenRequest = response.createTokenExchangeRequest()
+            .let { req ->
+                net.openid.appauth.TokenRequest.Builder(req.configuration, req.clientId)
+                    .setGrantType(req.grantType)
+                    .setAuthorizationCode(req.authorizationCode)
+                    .setRedirectUri(req.redirectUri)
+                    .setNonce(req.nonce)
+                    .setCodeVerifier(req.codeVerifier)
+                    .setClientSecret(AuthentikConfig.CLIENT_SECRET)
+                    .build()
+            }
         authService.performTokenRequest(tokenRequest) { tokenResponse, tokenException ->
             if (tokenException != null) {
                 onError("Token exchange failed: ${tokenException.errorDescription ?: tokenException.error}")
@@ -168,6 +178,7 @@ class AuthentikAuthManager(private val context: Context) {
             .setGrantType("refresh_token")
             .setRefreshToken(refreshToken)
             .setScopes(AuthentikConfig.SCOPES)
+            .setClientSecret(AuthentikConfig.CLIENT_SECRET)
             .build()
 
         authService.performTokenRequest(tokenRequest) { response, exception ->

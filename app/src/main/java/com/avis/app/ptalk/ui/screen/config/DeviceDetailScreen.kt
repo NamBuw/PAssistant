@@ -31,6 +31,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -125,6 +127,26 @@ fun DeviceDetailScreen(
                 colors = colors
             )
         } else {
+            // Tabs: PTalk / KidMentor
+            TabRow(
+                selectedTabIndex = uiState.selectedTab.ordinal,
+                containerColor = colors.background,
+                contentColor = TechColors.PTITRed
+            ) {
+                VMDeviceDetail.ChatTab.entries.forEach { tab ->
+                    Tab(
+                        selected = uiState.selectedTab == tab,
+                        onClick = { viewModel.selectTab(tab) },
+                        text = {
+                            Text(
+                                text = tab.label,
+                                fontWeight = if (uiState.selectedTab == tab) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    )
+                }
+            }
+
             // Show session list
             ChatSessionsList(
                 sessions = uiState.sessions,

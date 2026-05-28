@@ -22,14 +22,23 @@ class VMDeviceDetail @Inject constructor(
         private const val TAG = "VMDeviceDetail"
     }
 
+    enum class ChatTab(val label: String, val productSource: String) {
+        PTALK("PTalk", "ptalk"),
+        KID_MENTOR("KidMentor", "kid_mentor")
+    }
+
     data class UiState(
         val isLoading: Boolean = false,
-        val sessions: List<ChatSessionResponse> = emptyList(),
+        val allSessions: List<ChatSessionResponse> = emptyList(),
+        val selectedTab: ChatTab = ChatTab.PTALK,
         val selectedSession: ChatSessionResponse? = null,
         val messages: List<ChatMessageResponse> = emptyList(),
         val isLoadingMessages: Boolean = false,
         val error: String? = null
-    )
+    ) {
+        val sessions: List<ChatSessionResponse>
+            get() = allSessions.filter { it.productSource == selectedTab.productSource }
+    }
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -48,7 +57,7 @@ class VMDeviceDetail @Inject constructor(
                 )
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    sessions = response.sessions
+                    allSessions = response.sessions
                 )
                 ILog.d(TAG, "loadSessions", "Loaded ${response.sessions.size} sessions for device $deviceId")
             } catch (e: Exception) {
@@ -87,6 +96,10 @@ class VMDeviceDetail @Inject constructor(
                 )
             }
         }
+    }
+
+    fun selectTab(tab: ChatTab) {
+        _uiState.value = _uiState.value.copy(selectedTab = tab)
     }
 
     /**

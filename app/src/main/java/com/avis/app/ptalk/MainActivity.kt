@@ -21,6 +21,7 @@ import com.avis.app.ptalk.core.network.authentik.OIDCSessionManager
 import com.avis.app.ptalk.navigation.ConfigAppNavGraph
 import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.theme.AppColors
+import com.avis.app.ptalk.ui.theme.AndroidPTalkTheme
 import com.avis.app.ptalk.ui.theme.appColors
 import dagger.hilt.android.AndroidEntryPoint
 import org.thingai.android.module.meo.MeoSdk
@@ -58,28 +59,30 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val focusManager = LocalFocusManager.current
             val keyboardController = LocalSoftwareKeyboardController.current
-            
-            // Use system theme
-            val colors = appColors(isSystemInDarkTheme())
 
-            CompositionLocalProvider(LocalAppColors provides colors) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .pointerInput(Unit) {
-                            detectTapGestures {
-                                focusManager.clearFocus()
-                                keyboardController?.hide()
-                            }
-                        },
-                    color = colors.background
-                ) {
-                    ConfigAppNavGraph(
-                        navController = navController,
-                        startDestination = Route.SPLASH,
-                        nextDestination = startDest,
-                        modifier = Modifier.fillMaxSize()
-                    )
+            val isDark = isSystemInDarkTheme()
+            val colors = appColors(isDark)
+
+            AndroidPTalkTheme(darkTheme = isDark) {
+                CompositionLocalProvider(LocalAppColors provides colors) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                detectTapGestures {
+                                    focusManager.clearFocus()
+                                    keyboardController?.hide()
+                                }
+                            },
+                        color = colors.background
+                    ) {
+                        ConfigAppNavGraph(
+                            navController = navController,
+                            startDestination = Route.SPLASH,
+                            nextDestination = startDest,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }

@@ -2,9 +2,12 @@ package com.avis.app.ptalk.ui.screen.config
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,32 +17,37 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,32 +55,46 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.avis.app.ptalk.LocalAppColors
 import com.avis.app.ptalk.R
-import com.avis.app.ptalk.ui.theme.AppColors
-import com.avis.app.ptalk.ui.theme.PTalkTokens
-import com.avis.app.ptalk.ui.theme.TechColors
-import com.avis.app.ptalk.ui.viewmodel.VMHome
 import com.avis.app.ptalk.domain.model.Device
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.foundation.clickable
-import androidx.compose.runtime.collectAsState
+import com.avis.app.ptalk.ui.component.foundation.PChip
+import com.avis.app.ptalk.ui.component.foundation.PChipVariant
+import com.avis.app.ptalk.ui.component.foundation.PDeviceAvatar
+import com.avis.app.ptalk.ui.component.foundation.PEmptyState
+import com.avis.app.ptalk.ui.component.foundation.PSectionHeader
+import com.avis.app.ptalk.ui.theme.AppColors
 import kotlinx.coroutines.launch
 
 /**
- * Home Screen - Shows PTIT logo, user devices, and button to connect new device
+ * Home — main entry after login.
+ *
+ * Layout:
+ *   ┌──────────────────────────────────────────┐
+ *   │ Avatar greeting              [profile]   │
+ *   │ Brand pill (PTIT — PASSISTANT — CTS)     │
+ *   │                                          │
+ *   │ Section: Thiết bị của bạn (n)            │
+ *   │ ┌── DeviceCard ─────────────────────┐    │
+ *   │ │ avatar  Tên thiết bị              │    │
+ *   │ │         MAC                        │   │
+ *   │ │ [Điều khiển] [Lịch sử chat]        │   │
+ *   │ └────────────────────────────────────┘   │
+ *   │ ...                                      │
+ *   │                                          │
+ *   │                       [+ Cấu hình] (FAB) │
+ *   └──────────────────────────────────────────┘
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,10 +103,45 @@ fun HomeScreen(
     onNavigateToControl: (String, String) -> Unit,
     onNavigateToDeviceDetail: (String, String, String?) -> Unit = { _, _, _ -> },
     onSignOut: () -> Unit = {},
-    viewModel: VMHome = hiltViewModel()
+    viewModel: com.avis.app.ptalk.ui.viewmodel.VMHome = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    HomeContent(
+        uiState = uiState,
+        username = viewModel.getUsername(),
+        email = viewModel.getEmail(),
+        phone = viewModel.getPhone(),
+        userId = viewModel.getUserId(),
+        onNavigateToScan = onNavigateToScan,
+        onNavigateToControl = onNavigateToControl,
+        onNavigateToDeviceDetail = onNavigateToDeviceDetail,
+        onSignOut = {
+            viewModel.signOut()
+            onSignOut()
+        },
+        onDeleteDevice = viewModel::deleteDevice
+    )
+}
+
+/**
+ * Stateless body for HomeScreen — accepts plain values & callbacks
+ * so it can be rendered by Compose Preview and the debug Gallery.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun HomeContent(
+    uiState: com.avis.app.ptalk.ui.viewmodel.VMHome.UiState,
+    username: String?,
+    email: String?,
+    phone: String?,
+    userId: String?,
+    onNavigateToScan: () -> Unit,
+    onNavigateToControl: (String, String) -> Unit,
+    onNavigateToDeviceDetail: (String, String, String?) -> Unit,
+    onSignOut: () -> Unit,
+    onDeleteDevice: (Device) -> Unit
 ) {
     val colors = LocalAppColors.current
-    val uiState by viewModel.uiState.collectAsState()
 
     var showProfileSheet by remember { mutableStateOf(false) }
     var showDeviceManagement by remember { mutableStateOf(false) }
@@ -92,18 +149,17 @@ fun HomeScreen(
     val deviceSheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
-    // Profile Bottom Sheet
     if (showProfileSheet) {
         ModalBottomSheet(
             onDismissRequest = { showProfileSheet = false },
             sheetState = sheetState,
-            containerColor = PTalkTokens.Colors.White
+            containerColor = colors.surface
         ) {
             ProfileSheetContent(
-                username = viewModel.getUsername(),
-                email = viewModel.getEmail(),
-                phone = viewModel.getPhone(),
-                userId = viewModel.getUserId(),
+                username = username,
+                email = email,
+                phone = phone,
+                userId = userId,
                 colors = colors,
                 onManageDevices = {
                     scope.launch {
@@ -116,7 +172,6 @@ fun HomeScreen(
                     scope.launch {
                         sheetState.hide()
                         showProfileSheet = false
-                        viewModel.signOut()
                         onSignOut()
                     }
                 }
@@ -124,224 +179,297 @@ fun HomeScreen(
         }
     }
 
-    // Device Management Bottom Sheet
     if (showDeviceManagement) {
         ModalBottomSheet(
             onDismissRequest = { showDeviceManagement = false },
             sheetState = deviceSheetState,
-            containerColor = PTalkTokens.Colors.White
+            containerColor = colors.surface
         ) {
             DeviceManagementSheetContent(
                 devices = uiState.devices,
                 colors = colors,
-                onDeleteDevice = { device -> viewModel.deleteDevice(device) }
+                onDeleteDevice = onDeleteDevice
             )
         }
     }
 
-    // Main content — pastel green gradient background matching PTalk's bg_gradient.xml
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(PTalkTokens.Gradients.HomeBackground)
-    ) {
-        Column(
+    Scaffold(
+        containerColor = colors.background,
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = onNavigateToScan,
+                containerColor = colors.primary,
+                contentColor = colors.onPrimary,
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = {
+                    Text(
+                        "Cấu hình thiết bị",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
+                    )
+                },
+                shape = RoundedCornerShape(24.dp)
+            )
+        }
+    ) { padding ->
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .systemBarsPadding()
-                .padding(PTalkTokens.Spacing.XL)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(padding)
+                .systemBarsPadding(),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Top bar with profile button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                IconButton(
-                    onClick = { showProfileSheet = true },
-                    modifier = Modifier
-                        .size(PTalkTokens.Interactive.BtnCancelHeight)
-                        .background(Color.Transparent)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Tài khoản",
-                        tint = PTalkTokens.Colors.HamburgerTint,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
-
-            // Co-Branding Pill Bar (PTIT --- PASSISTANT --- CTS)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(84.dp)
-                    .background(Color.White, shape = androidx.compose.foundation.shape.RoundedCornerShape(42.dp))
-                    .padding(horizontal = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Left: PTIT Logo
-                Image(
-                    painter = painterResource(id = R.drawable.logo_ptit),
-                    contentDescription = "Logo PTIT",
-                    modifier = Modifier.size(48.dp),
-                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
-                )
-
-                // Center: Text "PASSISTANT"
-                Text(
-                    text = "PASSISTANT",
-                    color = Color(0xFF3F6B58), // Premium green/teal tone matching the KidMentor style
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.5.sp
-                )
-
-                // Right: CTS Logo
-                Image(
-                    painter = painterResource(id = R.drawable.logo_cts_flashscreen),
-                    contentDescription = "Logo CTS",
-                    modifier = Modifier
-                        .width(64.dp)
-                        .height(48.dp),
-                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
+            item {
+                HomeHeader(
+                    username = username,
+                    onProfileClick = { showProfileSheet = true },
+                    colors = colors
                 )
             }
-
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.HeroTop))
-
-            // Devices Section
-            Text(
-                text = "Thiết bị của bạn",
-                fontSize = PTalkTokens.FontSizes.SubGreeting,
-                fontWeight = FontWeight.Bold,
-                color = PTalkTokens.Colors.ProfileHeaderText,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Start
-            )
-
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
-
-            if (uiState.isLoading) {
-                CircularProgressIndicator(color = PTalkTokens.Colors.PTITRed)
-            } else if (!uiState.error.isNullOrEmpty()) {
-                Text(
-                    text = uiState.error!!,
-                    color = PTalkTokens.Colors.LoginError,
-                    fontSize = PTalkTokens.FontSizes.Status
-                )
-            } else if (uiState.devices.isEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = PTalkTokens.Shapes.GlassHeader,
-                    colors = CardDefaults.cardColors(containerColor = PTalkTokens.Colors.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Text(
-                        "Bạn chưa có thiết bị nào. Nhấn Bắt đầu cấu hình để thêm mới.",
-                        color = PTalkTokens.Colors.LoginSubheadline,
-                        fontSize = PTalkTokens.FontSizes.Status,
-                        modifier = Modifier.padding(PTalkTokens.Spacing.XL),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            } else {
-                uiState.devices.forEach { device ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = PTalkTokens.Spacing.L)
-                            .clickable { onNavigateToControl(device.macAddress, device.name ?: device.macAddress) },
-                        shape = PTalkTokens.Shapes.GlassHeader,
-                        colors = CardDefaults.cardColors(containerColor = PTalkTokens.Colors.White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(PTalkTokens.Spacing.XL),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(PTalkTokens.Spacing.TouchTargetMin)
-                                    .background(PTalkTokens.Colors.ProfileBg, CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Default.TouchApp,
-                                    null,
-                                    tint = PTalkTokens.Colors.ProfileHeaderText
-                                )
-                            }
-                            Spacer(Modifier.width(PTalkTokens.Spacing.L))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = device.name ?: "Thiết bị không tên",
-                                    fontSize = PTalkTokens.FontSizes.LoginHeaderTitle,
-                                    fontWeight = FontWeight.Bold,
-                                    color = PTalkTokens.Colors.ProfileHeaderText
-                                )
-                                Spacer(Modifier.height(PTalkTokens.Spacing.XS))
-                                Text(
-                                    text = "MAC: ${device.macAddress}",
-                                    fontSize = PTalkTokens.FontSizes.BrandSubtitle,
-                                    color = PTalkTokens.Colors.LoginSubheadline
-                                )
-                            }
-                            // Chat history button
-                            IconButton(
-                                onClick = {
-                                    onNavigateToDeviceDetail(
-                                        device.macAddress,
-                                        device.name ?: device.macAddress,
-                                        device.deviceId
-                                    )
-                                }
-                            ) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.Chat,
-                                    "Lịch sử chat",
-                                    tint = TechColors.PTITRed.copy(alpha = 0.7f)
-                                )
-                            }
+            item { Spacer(Modifier.height(4.dp)) }
+            item { BrandPill(colors = colors) }
+            item { Spacer(Modifier.height(8.dp)) }
+            item {
+                PSectionHeader(
+                    title = "Thiết bị của bạn",
+                    trailing = {
+                        if (uiState.devices.isNotEmpty()) {
+                            PChip(text = "${uiState.devices.size}", variant = PChipVariant.Brand)
                         }
+                    }
+                )
+            }
+
+            when {
+                uiState.isLoading -> {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) { CircularProgressIndicator(color = colors.primary) }
+                    }
+                }
+                !uiState.error.isNullOrEmpty() -> {
+                    item {
+                        Text(
+                            uiState.error!!,
+                            color = colors.error,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+                uiState.devices.isEmpty() -> {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(colors.card, RoundedCornerShape(20.dp))
+                                .border(1.dp, colors.outlineVariant, RoundedCornerShape(20.dp))
+                        ) {
+                            PEmptyState(
+                                icon = Icons.Default.Bluetooth,
+                                title = "Chưa có thiết bị nào",
+                                description = "Nhấn nút bên dưới để tìm và cấu hình thiết bị PTalk đầu tiên.",
+                                ctaText = "Bắt đầu cấu hình",
+                                onCtaClick = onNavigateToScan
+                            )
+                        }
+                    }
+                }
+                else -> {
+                    items(uiState.devices, key = { it.macAddress }) { device ->
+                        DeviceCard(
+                            device = device,
+                            colors = colors,
+                            onControl = {
+                                onNavigateToControl(device.macAddress, device.name ?: device.macAddress)
+                            },
+                            onChat = {
+                                onNavigateToDeviceDetail(
+                                    device.macAddress,
+                                    device.name ?: device.macAddress,
+                                    device.deviceId
+                                )
+                            }
+                        )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XXL))
+            item { Spacer(Modifier.height(80.dp)) } // space for FAB
+        }
+    }
+}
 
-            // Enter scan button — PTIT Red accent
-            Button(
-                onClick = onNavigateToScan,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(PTalkTokens.LoginDimens.InputHeight),
-                shape = PTalkTokens.Shapes.LoginButton,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = PTalkTokens.Colors.PTITRedDark,
-                    contentColor = PTalkTokens.Colors.White
-                )
-            ) {
+@Composable
+private fun HomeHeader(
+    username: String?,
+    onProfileClick: () -> Unit,
+    colors: AppColors
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column {
+            Text(
+                text = "Xin chào,",
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.textSecondary
+            )
+            Text(
+                text = username?.takeIf { it.isNotBlank() } ?: "Người dùng",
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = colors.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clickable(onClick = onProfileClick),
+            contentAlignment = Alignment.Center
+        ) {
+            PDeviceAvatar(name = username, size = 44.dp)
+        }
+    }
+}
+
+@Composable
+private fun BrandPill(colors: AppColors) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .background(colors.card, RoundedCornerShape(32.dp))
+            .border(1.dp, colors.outlineVariant, RoundedCornerShape(32.dp))
+            .padding(horizontal = 20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.logo_ptit),
+            contentDescription = "Logo PTIT",
+            modifier = Modifier.size(40.dp),
+            contentScale = ContentScale.Fit
+        )
+        Text(
+            text = "PASSISTANT",
+            color = colors.accent,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.6.sp
+            )
+        )
+        Image(
+            painter = painterResource(id = R.drawable.logo_cts_flashscreen),
+            contentDescription = "Logo CTS",
+            modifier = Modifier
+                .width(56.dp)
+                .height(40.dp),
+            contentScale = ContentScale.Fit
+        )
+    }
+}
+
+@Composable
+private fun DeviceCard(
+    device: Device,
+    colors: AppColors,
+    onControl: () -> Unit,
+    onChat: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onControl)
+            .background(colors.card, RoundedCornerShape(20.dp))
+            .border(1.dp, colors.outlineVariant, RoundedCornerShape(20.dp))
+            .padding(16.dp)
+    ) {
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                PDeviceAvatar(name = device.name ?: "P", size = 48.dp)
+                Spacer(Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = device.name ?: "Thiết bị không tên",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = colors.textPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = device.macAddress,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.textSecondary
+                    )
+                }
                 Icon(
-                    imageVector = Icons.Default.Bluetooth,
-                    contentDescription = null,
-                    modifier = Modifier.size(PTalkTokens.Spacing.XL)
-                )
-                Spacer(modifier = Modifier.size(PTalkTokens.Spacing.M))
-                Text(
-                    text = "Bắt đầu cấu hình",
-                    fontSize = PTalkTokens.FontSizes.LoginButton,
-                    fontWeight = FontWeight.Bold
+                    Icons.Default.ChevronRight,
+                    contentDescription = "Mở điều khiển",
+                    tint = colors.textMuted
                 )
             }
 
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
+            Spacer(Modifier.height(12.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                QuickActionChip(
+                    icon = Icons.Default.Tune,
+                    label = "Điều khiển",
+                    onClick = onControl,
+                    colors = colors,
+                    primary = true
+                )
+                QuickActionChip(
+                    icon = Icons.AutoMirrored.Filled.Chat,
+                    label = "Lịch sử chat",
+                    onClick = onChat,
+                    colors = colors,
+                    primary = false
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun QuickActionChip(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    colors: AppColors,
+    primary: Boolean
+) {
+    val bg = if (primary) colors.primary.copy(alpha = if (colors.isDark) 0.22f else 0.10f)
+             else colors.surfaceVariant
+    val fg = if (primary) colors.primary else colors.textPrimary
+
+    Row(
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .background(bg, RoundedCornerShape(999.dp))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = fg,
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = label,
+            color = fg,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
+        )
     }
 }
 
@@ -358,244 +486,90 @@ private fun ProfileSheetContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = PTalkTokens.Spacing.XL)
-            .padding(bottom = PTalkTokens.Spacing.XXL),
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Avatar
-        Box(
-            modifier = Modifier
-                .size(72.dp)
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            PTalkTokens.Colors.PTITRed,
-                            PTalkTokens.Colors.PTITRed.copy(alpha = 0.7f)
-                        )
-                    ),
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = (username?.firstOrNull()?.uppercaseChar() ?: 'U').toString(),
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = PTalkTokens.Colors.White
-            )
-        }
+        PDeviceAvatar(name = username, size = 80.dp)
 
-        Spacer(modifier = Modifier.height(PTalkTokens.Spacing.M))
+        Spacer(Modifier.height(12.dp))
 
         Text(
             text = username ?: "Người dùng",
-            fontSize = PTalkTokens.FontSizes.SubGreeting,
-            fontWeight = FontWeight.Bold,
-            color = PTalkTokens.Colors.ProfileHeaderText
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+            color = colors.textPrimary
         )
+        if (!email.isNullOrEmpty()) {
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = email,
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.textSecondary
+            )
+        }
 
-        Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
+        Spacer(Modifier.height(20.dp))
 
-        HorizontalDivider(color = PTalkTokens.Colors.SplashDivider)
+        HorizontalDivider(color = colors.outlineVariant)
 
-        Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
+        Spacer(Modifier.height(12.dp))
 
-        // User info rows
         if (!email.isNullOrBlank()) {
-            ProfileInfoRow(
-                icon = Icons.Default.Email,
-                label = "Email",
-                value = email,
-                colors = colors
-            )
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.M))
+            ProfileInfoRow(Icons.Default.Email, "Email", email, colors)
+            Spacer(Modifier.height(8.dp))
         }
-
         if (!phone.isNullOrBlank()) {
-            ProfileInfoRow(
-                icon = Icons.Default.Phone,
-                label = "Số điện thoại",
-                value = phone,
-                colors = colors
-            )
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.M))
+            ProfileInfoRow(Icons.Default.Phone, "Số điện thoại", phone, colors)
+            Spacer(Modifier.height(8.dp))
         }
-
         if (!userId.isNullOrBlank()) {
-            ProfileInfoRow(
-                icon = Icons.Default.Person,
-                label = "User ID",
-                value = userId,
-                colors = colors
-            )
+            ProfileInfoRow(Icons.Default.DeveloperMode, "User ID", userId, colors)
         }
 
-        Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
+        Spacer(Modifier.height(20.dp))
 
-        HorizontalDivider(color = PTalkTokens.Colors.SplashDivider)
+        HorizontalDivider(color = colors.outlineVariant)
 
-        Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
+        Spacer(Modifier.height(12.dp))
 
-        // Manage devices button
         Button(
             onClick = onManageDevices,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(PTalkTokens.Spacing.TouchTargetMin),
-            shape = PTalkTokens.Shapes.InputField,
+                .height(52.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = PTalkTokens.Colors.PTITRedDark,
-                contentColor = PTalkTokens.Colors.White
+                containerColor = colors.primary,
+                contentColor = colors.onPrimary
             )
         ) {
-            Icon(
-                imageVector = Icons.Default.PhoneAndroid,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(PTalkTokens.Spacing.S))
+            Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
             Text(
-                text = "Quản lý thiết bị",
-                fontSize = PTalkTokens.FontSizes.LoginButton,
-                fontWeight = FontWeight.SemiBold
+                "Quản lý thiết bị",
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
             )
         }
 
-        Spacer(modifier = Modifier.height(PTalkTokens.Spacing.M))
+        Spacer(Modifier.height(10.dp))
 
-        // Sign out button
-        Button(
+        TextButton(
             onClick = onSignOut,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(PTalkTokens.Spacing.TouchTargetMin),
-            shape = PTalkTokens.Shapes.InputField,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = PTalkTokens.Colors.CancelButtonBg,
-                contentColor = PTalkTokens.Colors.White
-            )
+                .height(52.dp),
+            colors = ButtonDefaults.textButtonColors(contentColor = colors.error)
         ) {
             Icon(
-                imageVector = Icons.Default.ExitToApp,
+                Icons.AutoMirrored.Filled.ExitToApp,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(18.dp)
             )
-            Spacer(modifier = Modifier.width(PTalkTokens.Spacing.S))
+            Spacer(Modifier.width(8.dp))
             Text(
-                text = "Đăng xuất",
-                fontSize = PTalkTokens.FontSizes.LoginButton,
-                fontWeight = FontWeight.SemiBold
+                "Đăng xuất",
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
             )
-        }
-    }
-}
-
-@Composable
-private fun DeviceManagementSheetContent(
-    devices: List<Device>,
-    colors: AppColors,
-    onDeleteDevice: (Device) -> Unit
-) {
-    var deviceToDelete by remember { mutableStateOf<Device?>(null) }
-
-    // Confirm delete dialog
-    deviceToDelete?.let { device ->
-        AlertDialog(
-            onDismissRequest = { deviceToDelete = null },
-            title = { Text("Xóa thiết bị") },
-            text = {
-                Text("Bạn có chắc muốn xóa thiết bị \"${device.name ?: device.macAddress}\"?\n\nThiết bị sẽ được chuyển về chế độ cấu hình BLE.")
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDeleteDevice(device)
-                        deviceToDelete = null
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = PTalkTokens.Colors.CancelButtonBg)
-                ) {
-                    Text("Xóa")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { deviceToDelete = null }) {
-                    Text("Hủy")
-                }
-            }
-        )
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = PTalkTokens.Spacing.XL)
-            .padding(bottom = PTalkTokens.Spacing.XXL)
-    ) {
-        Text(
-            text = "Quản lý thiết bị",
-            fontSize = PTalkTokens.FontSizes.SubGreeting,
-            fontWeight = FontWeight.Bold,
-            color = PTalkTokens.Colors.ProfileHeaderText
-        )
-
-        Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
-
-        if (devices.isEmpty()) {
-            Text(
-                "Chưa có thiết bị nào.",
-                color = PTalkTokens.Colors.LoginSubheadline,
-                fontSize = PTalkTokens.FontSizes.Status
-            )
-        } else {
-            devices.forEach { device ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = PTalkTokens.Spacing.S),
-                    shape = PTalkTokens.Shapes.InputField,
-                    colors = CardDefaults.cardColors(
-                        containerColor = PTalkTokens.Colors.ProfileBg
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(PTalkTokens.Spacing.M),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.PhoneAndroid,
-                            null,
-                            tint = PTalkTokens.Colors.PTITRed,
-                            modifier = Modifier.size(PTalkTokens.Spacing.XL)
-                        )
-                        Spacer(Modifier.width(PTalkTokens.Spacing.M))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                device.name ?: "Thiết bị",
-                                fontSize = PTalkTokens.FontSizes.Status,
-                                fontWeight = FontWeight.SemiBold,
-                                color = PTalkTokens.Colors.ProfileHeaderText
-                            )
-                            Text(
-                                device.macAddress,
-                                fontSize = PTalkTokens.FontSizes.BrandSubtitle,
-                                color = PTalkTokens.Colors.LoginSubheadline
-                            )
-                        }
-                        IconButton(
-                            onClick = { deviceToDelete = device }
-                        ) {
-                            Icon(
-                                Icons.Default.Delete,
-                                "Xóa",
-                                tint = PTalkTokens.Colors.CancelButtonBg
-                            )
-                        }
-                    }
-                }
-            }
         }
     }
 }
@@ -614,29 +588,114 @@ private fun ProfileInfoRow(
         Box(
             modifier = Modifier
                 .size(40.dp)
-                .background(PTalkTokens.Colors.PTITRed.copy(alpha = 0.1f), CircleShape),
+                .background(colors.surfaceVariant, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = PTalkTokens.Colors.PTITRed,
+                tint = colors.textSecondary,
                 modifier = Modifier.size(20.dp)
             )
         }
-        Spacer(modifier = Modifier.width(PTalkTokens.Spacing.M))
-        Column {
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                fontSize = PTalkTokens.FontSizes.BrandSubtitle,
-                color = PTalkTokens.Colors.LoginSubheadline
+                style = MaterialTheme.typography.labelSmall,
+                color = colors.textSecondary
             )
             Text(
                 text = value,
-                fontSize = PTalkTokens.FontSizes.Status,
-                fontWeight = FontWeight.Medium,
-                color = PTalkTokens.Colors.ProfileHeaderText
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.textPrimary,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
+        }
+    }
+}
+
+@Composable
+private fun DeviceManagementSheetContent(
+    devices: List<Device>,
+    colors: AppColors,
+    onDeleteDevice: (Device) -> Unit
+) {
+    var deviceToDelete by remember { mutableStateOf<Device?>(null) }
+
+    deviceToDelete?.let { device ->
+        AlertDialog(
+            onDismissRequest = { deviceToDelete = null },
+            title = { Text("Xóa thiết bị") },
+            text = {
+                Text("Bạn có chắc muốn xóa \"${device.name ?: device.macAddress}\"?\n\nThiết bị sẽ được chuyển về chế độ cấu hình BLE.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDeleteDevice(device)
+                        deviceToDelete = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = colors.error)
+                ) { Text("Xóa") }
+            },
+            dismissButton = {
+                TextButton(onClick = { deviceToDelete = null }) { Text("Hủy") }
+            }
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 28.dp)
+    ) {
+        Text(
+            "Quản lý thiết bị",
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+            color = colors.textPrimary
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        if (devices.isEmpty()) {
+            PEmptyState(
+                icon = Icons.Default.PhoneAndroid,
+                title = "Chưa có thiết bị",
+                description = "Bạn cần cấu hình ít nhất một thiết bị để quản lý.",
+                modifier = Modifier.fillMaxWidth()
+            )
+        } else {
+            devices.forEach { device ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(colors.cardHighlight, RoundedCornerShape(16.dp))
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    PDeviceAvatar(name = device.name ?: "P", size = 40.dp)
+                    Spacer(Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            device.name ?: "Thiết bị",
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = colors.textPrimary
+                        )
+                        Text(
+                            device.macAddress,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colors.textSecondary
+                        )
+                    }
+                    IconButton(onClick = { deviceToDelete = device }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Xóa", tint = colors.error)
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+            }
         }
     }
 }

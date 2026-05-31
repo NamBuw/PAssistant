@@ -263,36 +263,81 @@ object TechColors {
 
 /**
  * Dynamic theme colors based on system preference.
- * Currently both modes resolve to PTalk's light-mode minimalist look.
+ * Provides PTalk's "Friendly Premium" palette for both Light & Dark modes.
+ *
+ * Light mode  → off-white surface, PTIT red brand, soft green/amber accents.
+ * Dark mode   → deep neutral surface, lighter brand red, same accent hues
+ *               but tuned for low ambient luminance.
  */
 data class AppColors(
     val background: Color,
     val surface: Color,
+    val surfaceVariant: Color,
     val card: Color,
     val cardHighlight: Color,
+    val outline: Color,
+    val outlineVariant: Color,
     val textPrimary: Color,
     val textSecondary: Color,
     val textMuted: Color,
     val primary: Color,
+    val onPrimary: Color,
+    val primaryContainer: Color,
     val accent: Color,
+    val success: Color,
+    val warning: Color,
+    val error: Color,
     val glow: Color,
     val isDark: Boolean
 )
 
+/** Light palette — Friendly Premium. */
+private val LightAppColors = AppColors(
+    background = Color(0xFFFAFAFB),                          // off-white, warmer than pure white
+    surface = Color(0xFFFFFFFF),
+    surfaceVariant = Color(0xFFF1F2F5),
+    card = Color(0xFFFFFFFF),
+    cardHighlight = Color(0xFFF5F7FA),
+    outline = Color(0xFFE3E5E8),
+    outlineVariant = Color(0xFFEDEEF1),
+    textPrimary = Color(0xFF111114),
+    textSecondary = Color(0xFF60636B),
+    textMuted = Color(0xFF9499A0),
+    primary = PTalkTokens.Colors.PTITRedDark,                // #D30005
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFFFE3E3),
+    accent = Color(0xFF3F6B58),                              // Soft green/teal
+    success = Color(0xFF2E7D52),
+    warning = Color(0xFFE07B20),
+    error = Color(0xFFD92D20),
+    glow = Color.Transparent,
+    isDark = false
+)
+
+/** Dark palette — Friendly Premium tuned for low light. */
+private val DarkAppColors = AppColors(
+    background = Color(0xFF0E1013),                          // deep neutral, not pure black
+    surface = Color(0xFF15181C),
+    surfaceVariant = Color(0xFF1C2025),
+    card = Color(0xFF1A1D22),
+    cardHighlight = Color(0xFF22262C),
+    outline = Color(0xFF2E3238),
+    outlineVariant = Color(0xFF24272D),
+    textPrimary = Color(0xFFF1F2F5),
+    textSecondary = Color(0xFFA8ADB5),
+    textMuted = Color(0xFF6F757E),
+    primary = Color(0xFFFF6B6F),                             // Lifted PTIT red for dark surfaces
+    onPrimary = Color(0xFF1A0001),
+    primaryContainer = Color(0xFF4A0006),
+    accent = Color(0xFF7CC4A6),                              // Lifted soft green
+    success = Color(0xFF7CC4A6),
+    warning = Color(0xFFF2A65A),
+    error = Color(0xFFFF6B6F),
+    glow = Color.Transparent,
+    isDark = true
+)
+
 @Composable
 fun appColors(darkTheme: Boolean = isSystemInDarkTheme()): AppColors {
-    // Both modes use PTalk's minimalist light-mode palette for brand consistency
-    return AppColors(
-        background = PTalkTokens.Colors.ProfileBg,
-        surface = PTalkTokens.Colors.White,
-        card = PTalkTokens.Colors.White,
-        cardHighlight = PTalkTokens.Colors.ProfileBg,
-        textPrimary = PTalkTokens.Colors.LoginHeadline,      // #111111
-        textSecondary = PTalkTokens.Colors.LoginSubheadline,  // #707072
-        textMuted = PTalkTokens.Colors.LoginInputHint,        // #9E9EA0
-        primary = PTalkTokens.Colors.PTITRedDark,             // #D30005
-        accent = TechColors.LinkBlue,                         // #2563EB
-        glow = Color.Transparent,
-        isDark = false
-    )
+    return if (darkTheme) DarkAppColors else LightAppColors
 }

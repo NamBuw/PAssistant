@@ -1,28 +1,84 @@
 package com.avis.app.ptalk.ui.screen.config
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.BatteryFull
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.BrightnessMedium
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.PowerSettingsNew
-import androidx.compose.material.icons.filled.VolumeUp
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.avis.app.ptalk.LocalAppColors
-import com.avis.app.ptalk.ui.theme.TechColors
+import com.avis.app.ptalk.ui.component.foundation.PChip
+import com.avis.app.ptalk.ui.component.foundation.PChipVariant
+import com.avis.app.ptalk.ui.component.foundation.PStatusDot
+import com.avis.app.ptalk.core.websocket.DeviceStatusResponse
+import com.avis.app.ptalk.ui.theme.AppColors
 import com.avis.app.ptalk.ui.viewmodel.VMControl
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,23 +89,63 @@ fun ControlScreen(
     onBack: () -> Unit,
     viewModel: VMControl = hiltViewModel()
 ) {
-    val colors = LocalAppColors.current
     val status by viewModel.deviceStatus.collectAsState()
     val isConnected by viewModel.connectionState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val lastError by viewModel.lastError.collectAsState()
     val localDeviceName by viewModel.localDeviceName.collectAsState()
-    val isDeviceOnline = status?.connectivityState == "ONLINE"
-
-    var volume by remember { mutableStateOf(50f) }
-    var brightness by remember { mutableStateOf(50f) }
-
-    // For device rename
-    var showRenameDialog by remember { mutableStateOf(false) }
-    var newDeviceName by remember { mutableStateOf("") }
 
     LaunchedEffect(macAddress) {
         viewModel.initConnection(macAddress)
     }
+
+    ControlContent(
+        deviceName = deviceName,
+        localDeviceName = localDeviceName,
+        status = status,
+        isConnected = isConnected,
+        isLoading = isLoading,
+        lastError = lastError,
+        onBack = onBack,
+        onClearError = viewModel::clearError,
+        onSetVolume = viewModel::setVolume,
+        onSetBrightness = viewModel::setBrightness,
+        onSetDeviceName = viewModel::setDeviceName,
+        onResetWifi = viewModel::resetWifi,
+        onReboot = viewModel::rebootDevice
+    )
+}
+
+/**
+ * Stateless body for ControlScreen. Pure inputs/outputs so it can be
+ * driven from `@Preview` or the debug Gallery without a real
+ * MQTT/Hilt graph.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ControlContent(
+    deviceName: String,
+    localDeviceName: String?,
+    status: DeviceStatusResponse?,
+    isConnected: Boolean,
+    isLoading: Boolean,
+    lastError: String?,
+    onBack: () -> Unit,
+    onClearError: () -> Unit,
+    onSetVolume: (Int) -> Unit,
+    onSetBrightness: (Int) -> Unit,
+    onSetDeviceName: (String) -> Unit,
+    onResetWifi: () -> Unit,
+    onReboot: () -> Unit
+) {
+    val colors = LocalAppColors.current
+    val isOnline = status?.connectivityState == "ONLINE"
+
+    var volume by remember { mutableFloatStateOf(50f) }
+    var brightness by remember { mutableFloatStateOf(50f) }
+    var showRenameSheet by remember { mutableStateOf(false) }
+    var newName by remember { mutableStateOf("") }
+    val snackbar = remember { SnackbarHostState() }
 
     LaunchedEffect(status) {
         status?.let {
@@ -58,224 +154,498 @@ fun ControlScreen(
         }
     }
 
-    // Rename device dialog - saves to DB, syncs to device when online
-    if (showRenameDialog) {
+    LaunchedEffect(lastError) {
+        lastError?.let {
+            snackbar.showSnackbar(it)
+            onClearError()
+        }
+    }
+
+    if (showRenameSheet) {
         AlertDialog(
-            onDismissRequest = { showRenameDialog = false },
-            title = { Text("Đổi tên thiết bị") },
+            onDismissRequest = { showRenameSheet = false },
+            containerColor = colors.surface,
+            title = {
+                Text(
+                    "Đổi tên thiết bị",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = colors.textPrimary
+                )
+            },
             text = {
                 OutlinedTextField(
-                    value = newDeviceName,
-                    onValueChange = { newDeviceName = it },
-                    label = { Text("Tên mới") },
+                    value = newName,
+                    onValueChange = { newName = it },
+                    label = { Text("Tên thiết bị") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = TechColors.PTITRed,
-                        cursorColor = TechColors.PTITRed
+                        focusedBorderColor = colors.primary,
+                        cursorColor = colors.primary,
+                        focusedTextColor = colors.textPrimary,
+                        unfocusedTextColor = colors.textPrimary
                     )
                 )
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (newDeviceName.isNotBlank()) {
-                            viewModel.setDeviceName(newDeviceName.trim())
-                            showRenameDialog = false
+                        if (newName.isNotBlank()) {
+                            onSetDeviceName(newName.trim())
+                            showRenameSheet = false
                         }
                     },
-                    colors = ButtonDefaults.textButtonColors(contentColor = TechColors.PTITRed)
+                    colors = ButtonDefaults.textButtonColors(contentColor = colors.primary)
                 ) {
-                    Text("Lưu")
+                    Text("Lưu", fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showRenameDialog = false }) {
-                    Text("Hủy")
-                }
+                TextButton(onClick = { showRenameSheet = false }) { Text("Hủy") }
             }
         )
     }
 
     Scaffold(
+        containerColor = colors.background,
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbar,
+                snackbar = { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        containerColor = colors.surfaceVariant,
+                        contentColor = colors.textPrimary,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+            )
+        },
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = localDeviceName ?: status?.deviceName ?: deviceName,
-                        maxLines = 1
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = colors.textPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
-                    }
-                },
-                actions = {
-                    // Rename always allowed (saves to DB, syncs when online)
-                    IconButton(
-                        onClick = {
-                            newDeviceName = localDeviceName ?: status?.deviceName ?: deviceName
-                            showRenameDialog = true
-                        }
-                    ) {
                         Icon(
-                            Icons.Default.Edit,
-                            "Đổi tên",
-                            tint = Color.White
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Quay lại",
+                            tint = colors.textPrimary
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = TechColors.PTITRed,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
+                actions = {
+                    IconButton(onClick = {
+                        newName = localDeviceName ?: status?.deviceName ?: deviceName
+                        showRenameSheet = true
+                    }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Đổi tên", tint = colors.textPrimary)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = colors.background)
             )
-        },
-        containerColor = colors.background
+        }
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(24.dp)
                 .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // ===== Connection Status Card =====
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = colors.card),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text(
-                        "Trạng thái kết nối",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = colors.textPrimary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+            // ── Hero status card ─────────────────────────────
+            HeroStatusCard(
+                isOnline = isOnline,
+                isConnectedToMqtt = isConnected,
+                battery = status?.batteryLevel,
+                wifiSsid = status?.wifiSsid,
+                wifiRssi = status?.wifiRssi,
+                firmware = status?.firmwareVersion,
+                uptimeSec = status?.uptimeSec,
+                colors = colors
+            )
 
-                    val connectionText = when {
-                        isDeviceOnline -> "Thiết bị trực tuyến"
-                        isConnected -> "Đang chờ thiết bị..."
-                        else -> "Đang kết nối MQTT..."
-                    }
+            // ── Volume slider card ───────────────────────────
+            ControlSliderCard(
+                title = "Âm lượng",
+                icon = Icons.AutoMirrored.Filled.VolumeUp,
+                accent = colors.primary,
+                value = volume,
+                enabled = isConnected && isOnline,
+                onValueChange = { volume = it },
+                onValueChangeFinished = { onSetVolume(volume.toInt()) },
+                colors = colors
+            )
 
-                    val connectionColor = when {
-                        isDeviceOnline -> Color(0xFF4CAF50)
-                        isConnected -> TechColors.OrangeAccent
-                        else -> TechColors.PTITRed
-                    }
+            // ── Brightness slider card ───────────────────────
+            ControlSliderCard(
+                title = "Độ sáng màn hình",
+                icon = Icons.Default.BrightnessMedium,
+                accent = colors.warning,
+                value = brightness,
+                enabled = isConnected && isOnline,
+                onValueChange = { brightness = it },
+                onValueChangeFinished = { onSetBrightness(brightness.toInt()) },
+                colors = colors
+            )
 
-                    Text(
-                        connectionText,
-                        color = connectionColor,
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
-                    )
+            // ── Advanced section ─────────────────────────────
+            AdvancedSection(
+                enabled = isConnected && isOnline && !isLoading,
+                colors = colors,
+                onResetWifi = {
+                    onResetWifi()
+                    onBack()
+                },
+                onReboot = {
+                    onReboot()
+                    onBack()
+                }
+            )
 
-                    status?.let { st ->
-                        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun HeroStatusCard(
+    isOnline: Boolean,
+    isConnectedToMqtt: Boolean,
+    battery: Int?,
+    wifiSsid: String?,
+    wifiRssi: Int?,
+    firmware: String?,
+    uptimeSec: Int?,
+    colors: AppColors
+) {
+    val statusLabel: String
+    val statusVariant: PChipVariant
+    when {
+        isOnline -> { statusLabel = "Đang trực tuyến"; statusVariant = PChipVariant.Success }
+        isConnectedToMqtt -> { statusLabel = "Đang chờ thiết bị"; statusVariant = PChipVariant.Warning }
+        else -> { statusLabel = "Đang kết nối MQTT"; statusVariant = PChipVariant.Neutral }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colors.card, RoundedCornerShape(20.dp))
+            .border(1.dp, colors.outlineVariant, RoundedCornerShape(20.dp))
+            .padding(20.dp)
+    ) {
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                BatteryDonut(percent = battery, colors = colors)
+                Spacer(Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        PStatusDot(online = isOnline, size = 10.dp)
+                        Spacer(Modifier.width(8.dp))
                         Text(
-                            "Pin: ${st.batteryLevel ?: "?"}% | Uptime: ${formatUptime(st.uptimeSec)} | FW: ${st.firmwareVersion ?: "?"}",
-                            color = colors.textSecondary,
-                            style = MaterialTheme.typography.bodySmall
+                            text = statusLabel,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = colors.textPrimary
                         )
                     }
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = if (battery != null) "Pin: $battery%" else "Đang đồng bộ trạng thái…",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.textSecondary
+                    )
+                }
+                PChip(text = statusLabel, variant = statusVariant)
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // Info chips row
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (!wifiSsid.isNullOrBlank()) {
+                    InfoChip(
+                        icon = Icons.Default.Wifi,
+                        label = wifiSsid + (wifiRssi?.let { " · ${it}dBm" } ?: ""),
+                        colors = colors
+                    )
+                }
+                if (uptimeSec != null) {
+                    InfoChip(
+                        icon = Icons.Default.Schedule,
+                        label = formatUptime(uptimeSec),
+                        colors = colors
+                    )
+                }
+                if (!firmware.isNullOrBlank()) {
+                    InfoChip(
+                        icon = Icons.Default.Memory,
+                        label = "FW $firmware",
+                        colors = colors
+                    )
                 }
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(24.dp))
+@Composable
+private fun BatteryDonut(percent: Int?, colors: AppColors) {
+    val pct = (percent ?: 0).coerceIn(0, 100) / 100f
+    val arcColor = when {
+        percent == null -> colors.textMuted
+        (percent) < 20 -> colors.error
+        (percent) < 50 -> colors.warning
+        else -> colors.success
+    }
+    Box(
+        modifier = Modifier.size(72.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.size(72.dp)) {
+            val stroke = Stroke(width = 8f)
+            val pad = stroke.width / 2f
+            val arcSize = Size(this.size.width - stroke.width, this.size.height - stroke.width)
+            drawArc(
+                color = colors.outlineVariant,
+                startAngle = 0f,
+                sweepAngle = 360f,
+                useCenter = false,
+                topLeft = Offset(pad, pad),
+                size = arcSize,
+                style = stroke
+            )
+            drawArc(
+                color = arcColor,
+                startAngle = -90f,
+                sweepAngle = 360f * pct,
+                useCenter = false,
+                topLeft = Offset(pad, pad),
+                size = arcSize,
+                style = stroke
+            )
+        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                Icons.Default.BatteryFull,
+                contentDescription = null,
+                tint = arcColor,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                text = percent?.let { "$it%" } ?: "—",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = colors.textPrimary
+            )
+        }
+    }
+}
 
-            // ===== Volume Control =====
-            Text("Âm lượng", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = colors.textPrimary)
-            Spacer(modifier = Modifier.height(8.dp))
+@Composable
+private fun InfoChip(icon: ImageVector, label: String, colors: AppColors) {
+    Row(
+        modifier = Modifier
+            .background(colors.surfaceVariant, RoundedCornerShape(999.dp))
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null, tint = colors.textSecondary, modifier = Modifier.size(14.dp))
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = colors.textSecondary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun ControlSliderCard(
+    title: String,
+    icon: ImageVector,
+    accent: androidx.compose.ui.graphics.Color,
+    value: Float,
+    enabled: Boolean,
+    onValueChange: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit,
+    colors: AppColors
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colors.card, RoundedCornerShape(20.dp))
+            .border(1.dp, colors.outlineVariant, RoundedCornerShape(20.dp))
+            .padding(20.dp)
+    ) {
+        Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.VolumeUp, null, tint = TechColors.PTITRed)
-                Slider(
-                    value = volume,
-                    onValueChange = { volume = it },
-                    onValueChangeFinished = { 
-                        viewModel.setVolume(volume.toInt())
-                    },
-                    valueRange = 0f..100f,
-                    modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
-                    colors = SliderDefaults.colors(
-                        thumbColor = TechColors.PTITRed,
-                        activeTrackColor = TechColors.PTITRed
-                    ),
-                    enabled = isConnected && isDeviceOnline
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(accent.copy(alpha = if (colors.isDark) 0.22f else 0.12f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
+                }
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = colors.textPrimary,
+                    modifier = Modifier.weight(1f)
                 )
-                Text("${volume.toInt()}%", color = colors.textSecondary)
+                Text(
+                    text = "${value.toInt()}",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                    color = if (enabled) accent else colors.textMuted
+                )
+                Text(
+                    text = "%",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.textSecondary,
+                    modifier = Modifier.padding(start = 2.dp, top = 6.dp)
+                )
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ===== Brightness Control =====
-            Text("Độ sáng màn hình", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = colors.textPrimary)
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.BrightnessMedium, null, tint = TechColors.OrangeAccent)
-                Slider(
-                    value = brightness,
-                    onValueChange = { brightness = it },
-                    onValueChangeFinished = { viewModel.setBrightness(brightness.toInt()) },
-                    valueRange = 0f..100f,
-                    modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
-                    colors = SliderDefaults.colors(
-                        thumbColor = TechColors.OrangeAccent,
-                        activeTrackColor = TechColors.OrangeAccent
-                    ),
-                    enabled = isConnected && isDeviceOnline
+            Spacer(Modifier.height(8.dp))
+            Slider(
+                value = value,
+                onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished,
+                valueRange = 0f..100f,
+                enabled = enabled,
+                colors = SliderDefaults.colors(
+                    thumbColor = accent,
+                    activeTrackColor = accent,
+                    inactiveTrackColor = colors.outlineVariant,
+                    disabledThumbColor = colors.textMuted,
+                    disabledActiveTrackColor = colors.outlineVariant
                 )
-                Text("${brightness.toInt()}%", color = colors.textSecondary)
-            }
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            // ===== Advanced Section =====
-            Text("Nâng cao", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = colors.textPrimary)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Request BLE Config button
-            OutlinedButton(
-                onClick = {
-                    viewModel.resetWifi()
-                    onBack()
-                },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                enabled = isConnected && isDeviceOnline && !isLoading,
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = TechColors.OrangeAccent
-                ),
-                border = ButtonDefaults.outlinedButtonBorder.copy(
-                    brush = androidx.compose.ui.graphics.SolidColor(TechColors.OrangeAccent)
-                )
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(Icons.Default.Bluetooth, null)
-                Spacer(Modifier.width(8.dp))
-                Text("Chế độ cấu hình BLE")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Reboot button
-            Button(
-                onClick = {
-                    viewModel.rebootDevice()
-                    onBack()
-                },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                enabled = isConnected && isDeviceOnline && !isLoading,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336), contentColor = Color.White),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Icon(Icons.Default.PowerSettingsNew, null)
-                Spacer(Modifier.width(8.dp))
-                Text("Khởi động lại thiết bị")
+                listOf(0, 25, 50, 75, 100).forEach { tick ->
+                    Text(
+                        text = "$tick",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = colors.textMuted
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun AdvancedSection(
+    enabled: Boolean,
+    colors: AppColors,
+    onResetWifi: () -> Unit,
+    onReboot: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colors.card, RoundedCornerShape(20.dp))
+            .border(1.dp, colors.outlineVariant, RoundedCornerShape(20.dp))
+    ) {
+        Text(
+            text = "Nâng cao",
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = colors.textPrimary,
+            modifier = Modifier.padding(start = 20.dp, top = 16.dp, end = 20.dp, bottom = 4.dp)
+        )
+
+        AdvancedRow(
+            icon = Icons.Default.Bluetooth,
+            iconTint = colors.warning,
+            title = "Chế độ cấu hình BLE",
+            description = "Đưa thiết bị về chế độ Bluetooth để cấu hình lại",
+            enabled = enabled,
+            colors = colors,
+            onClick = onResetWifi
+        )
+
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .padding(start = 60.dp, end = 20.dp)
+                .background(colors.outlineVariant)
+        )
+
+        AdvancedRow(
+            icon = Icons.Default.PowerSettingsNew,
+            iconTint = colors.error,
+            title = "Khởi động lại thiết bị",
+            description = "Reset thiết bị qua MQTT",
+            enabled = enabled,
+            colors = colors,
+            onClick = onReboot
+        )
+
+        Spacer(Modifier.height(12.dp))
+    }
+}
+
+@Composable
+private fun AdvancedRow(
+    icon: ImageVector,
+    iconTint: androidx.compose.ui.graphics.Color,
+    title: String,
+    description: String,
+    enabled: Boolean,
+    colors: AppColors,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .background(iconTint.copy(alpha = if (colors.isDark) 0.22f else 0.12f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(18.dp))
+        }
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                title,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                color = if (enabled) colors.textPrimary else colors.textMuted
+            )
+            Text(
+                description,
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.textSecondary
+            )
+        }
+        Icon(
+            Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = if (enabled) colors.textSecondary else colors.textMuted
+        )
     }
 }
 
@@ -285,7 +655,7 @@ private fun formatUptime(seconds: Int?): String {
     val m = (seconds % 3600) / 60
     val s = seconds % 60
     return when {
-        h > 0 -> "${h}h ${m}m ${s}s"
+        h > 0 -> "${h}h ${m}m"
         m > 0 -> "${m}m ${s}s"
         else -> "${s}s"
     }

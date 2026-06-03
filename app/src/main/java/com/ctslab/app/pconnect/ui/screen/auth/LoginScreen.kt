@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Key
@@ -20,9 +21,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ctslab.app.pconnect.LocalAppColors
@@ -92,7 +96,26 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(52.dp))
 
-            // ── Consent ───────────────────────────────────────────────────
+            // ── Consent — inline clickable links inside the sentence ──────
+            val cPrefix = stringResource(R.string.consent_prefix)
+            val cPrivacy = stringResource(R.string.consent_privacy)
+            val cAnd = stringResource(R.string.consent_and)
+            val cTerms = stringResource(R.string.consent_terms)
+            val linkStyle = SpanStyle(
+                fontWeight = FontWeight.Bold,
+                color = PTalkTokens.Colors.LinkBlue,
+                textDecoration = TextDecoration.Underline
+            )
+            val consentText = buildAnnotatedString {
+                append(cPrefix)
+                pushStringAnnotation("url", "https://dashboard.ctslab.net/privacy")
+                withStyle(linkStyle) { append(cPrivacy) }
+                pop()
+                append(cAnd)
+                pushStringAnnotation("url", "https://dashboard.ctslab.net/terms")
+                withStyle(linkStyle) { append(cTerms) }
+                pop()
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -105,34 +128,14 @@ fun LoginScreen(
                         .semantics { contentDescription = "agree_terms_checkbox" }
                 )
                 Spacer(modifier = Modifier.width(PTalkTokens.Spacing.S))
-                Text(
-                    text = stringResource(R.string.consent_label),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.textPrimary,
+                ClickableText(
+                    text = consentText,
+                    style = MaterialTheme.typography.bodySmall.copy(color = colors.textPrimary),
                     modifier = Modifier.weight(1f)
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 32.dp, top = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.consent_privacy),
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = PTalkTokens.Colors.LinkBlue,
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { openUrl("https://dashboard.ctslab.net/privacy") }
-                )
-                Text(
-                    text = stringResource(R.string.consent_terms),
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = PTalkTokens.Colors.LinkBlue,
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { openUrl("https://dashboard.ctslab.net/terms") }
-                )
+                ) { offset ->
+                    consentText.getStringAnnotations("url", offset, offset)
+                        .firstOrNull()?.let { openUrl(it.item) }
+                }
             }
 
             if (!agreeTerms) {

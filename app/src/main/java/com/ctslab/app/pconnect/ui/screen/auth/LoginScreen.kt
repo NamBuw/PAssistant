@@ -15,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,6 +30,10 @@ import com.ctslab.app.pconnect.R
 import com.ctslab.app.pconnect.ui.theme.PTalkTokens
 import com.ctslab.app.pconnect.ui.theme.TechColors
 
+/**
+ * P-Connect login — minimal & professional (the parent/management app).
+ * White background, small logo + wordmark, generous whitespace, one prominent SSO button.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
@@ -54,25 +57,31 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(36.dp))
+            Spacer(modifier = Modifier.height(72.dp))
 
-            // ── Co-branding header (PTIT | P-Connect | CTS) ──────────────
-            CoBrandingHeader()
-
-            Spacer(modifier = Modifier.height(44.dp))
-
-            // Headline (28sp) — prominent but balanced
-            Text(
-                text = stringResource(R.string.login_headline),
-                style = MaterialTheme.typography.displayLarge,
-                color = TechColors.PTITRed,
-                textAlign = TextAlign.Center
+            // Logo
+            Image(
+                painter = painterResource(id = R.drawable.logo_ptit),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier.size(76.dp)
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Wordmark
+            Text(
+                text = "P-Connect",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                ),
+                color = PTalkTokens.Colors.HomePillText
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
 
             Text(
                 text = stringResource(R.string.login_subheadline),
@@ -81,7 +90,7 @@ fun LoginScreen(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(52.dp))
 
             // ── Consent ───────────────────────────────────────────────────
             Row(
@@ -137,7 +146,7 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
             // ── SSO button (primary) ─────────────────────────────────────
             Button(
@@ -185,7 +194,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(40.dp))
         }
 
-        // Footer pinned to the bottom — fills the empty space, adds institutional identity
+        // Footer pinned to the bottom
         Text(
             text = stringResource(R.string.login_footer),
             style = MaterialTheme.typography.labelSmall,
@@ -196,63 +205,5 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 20.dp)
         )
-    }
-}
-
-/** PTIT | P-Connect | CTS lockup — consistent with the home-screen pill and the XML apps. */
-@Composable
-private fun CoBrandingHeader() {
-    Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = PTalkTokens.Colors.White,
-        shadowElevation = 4.dp,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo_ptit),
-                contentDescription = "PTIT",
-                modifier = Modifier.size(44.dp),
-                contentScale = ContentScale.Fit
-            )
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .width(1.dp)
-                    .height(32.dp)
-                    .background(PTalkTokens.Colors.LoginDividerLine)
-            )
-            Text(
-                text = "P-CONNECT",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.5.sp
-                ),
-                color = PTalkTokens.Colors.HomePillText,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f)
-            )
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .width(1.dp)
-                    .height(32.dp)
-                    .background(PTalkTokens.Colors.LoginDividerLine)
-            )
-            Image(
-                painter = painterResource(id = R.drawable.logo_cts_flashscreen),
-                contentDescription = "CTS",
-                modifier = Modifier
-                    .width(56.dp)
-                    .height(40.dp),
-                contentScale = ContentScale.Fit
-            )
-        }
     }
 }

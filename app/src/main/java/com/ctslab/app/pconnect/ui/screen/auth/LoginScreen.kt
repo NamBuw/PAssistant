@@ -74,9 +74,63 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(48.dp))
 
+            // Privacy & Terms Agreement
+            var agreeTerms by remember { mutableStateOf(false) }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = agreeTerms,
+                    onCheckedChange = { agreeTerms = it },
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "I agree to ",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.textPrimary
+                )
+                Text(
+                    text = "Privacy Policy",
+                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                    color = TechColors.PTITRed,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { /* Open Privacy Policy */ }
+                )
+                Text(
+                    text = " and ",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.textPrimary
+                )
+                Text(
+                    text = "Terms",
+                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                    color = TechColors.PTITRed,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { /* Open Terms & Conditions */ }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Error message for unchecked terms
+            if (!agreeTerms) {
+                Text(
+                    text = "You must agree to Privacy Policy and Terms & Conditions",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // SSO Button (Authentik) - Primary login method
             Button(
-                onClick = { onLaunchSSO() },
+                onClick = { if (agreeTerms) onLaunchSSO() },
+                enabled = agreeTerms,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

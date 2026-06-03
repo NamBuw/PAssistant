@@ -106,14 +106,16 @@ fun LoginScreen(
                 color = PTalkTokens.Colors.LinkBlue,
                 textDecoration = TextDecoration.Underline
             )
+            // trim() each part + explicit spaces: Android trims edge whitespace from
+            // string resources, so the spaces baked into the strings are unreliable.
             val consentText = buildAnnotatedString {
-                append(cPrefix)
+                append(cPrefix.trim()); append(" ")
                 pushStringAnnotation("url", "https://dashboard.ctslab.net/privacy")
-                withStyle(linkStyle) { append(cPrivacy) }
+                withStyle(linkStyle) { append(cPrivacy.trim()) }
                 pop()
-                append(cAnd)
+                append(" "); append(cAnd.trim()); append(" ")
                 pushStringAnnotation("url", "https://dashboard.ctslab.net/terms")
-                withStyle(linkStyle) { append(cTerms) }
+                withStyle(linkStyle) { append(cTerms.trim()) }
                 pop()
             }
             Row(
@@ -181,10 +183,11 @@ fun LoginScreen(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = stringResource(R.string.signup_prompt),
+                    text = stringResource(R.string.signup_prompt).trim(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = colors.textSecondary
                 )
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = stringResource(R.string.signup_link),
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),

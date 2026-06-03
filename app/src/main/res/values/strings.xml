@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">P-Connect</string>
-    <string name="app_tagline">Parent Connectivity & Device Management</string>
+    <string name="app_tagline">Parent Connectivity &amp; Device Management</string>
     <string name="brand_institution">CTS Lab - PTIT</string>
 </resources>

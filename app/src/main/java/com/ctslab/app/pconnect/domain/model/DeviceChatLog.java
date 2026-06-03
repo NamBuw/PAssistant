@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.domain.model;
+package com.ctslab.app.pconnect.domain.model;
 
 public class DeviceChatLog {
     private String chatLogId;

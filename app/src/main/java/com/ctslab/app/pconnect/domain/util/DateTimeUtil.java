@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.domain.util;
+package com.ctslab.app.pconnect.domain.util;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

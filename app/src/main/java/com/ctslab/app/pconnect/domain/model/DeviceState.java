@@ -1,6 +1,6 @@
-package com.avis.app.ptalk.domain.model;
+package com.ctslab.app.pconnect.domain.model;
 
-import com.avis.app.ptalk.domain.define.DeviceConnectionStatus;
+import com.ctslab.app.pconnect.domain.define.DeviceConnectionStatus;
 
 public class DeviceState {
     private String label;

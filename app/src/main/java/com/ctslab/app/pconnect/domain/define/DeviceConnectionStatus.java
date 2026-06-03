@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.domain.define;
+package com.ctslab.app.pconnect.domain.define;
 
 public enum DeviceConnectionStatus {
     ONLINE,

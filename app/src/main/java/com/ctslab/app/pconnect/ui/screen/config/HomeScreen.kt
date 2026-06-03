@@ -208,13 +208,14 @@ fun HomeScreen(
                     contentScale = androidx.compose.ui.layout.ContentScale.Fit
                 )
 
-                // Center: Text "P-Connect"
+                // Center: wordmark — use token color + typography
                 Text(
                     text = "P-CONNECT",
-                    color = Color(0xFF3F6B58), // Premium green/teal tone matching the KidMentor style
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.5.sp
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.5.sp
+                    ),
+                    color = PTalkTokens.Colors.HomePillText
                 )
 
                 // Right: CTS Logo

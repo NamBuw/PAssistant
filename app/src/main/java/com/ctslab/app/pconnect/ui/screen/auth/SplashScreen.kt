@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -116,13 +117,11 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
 
             Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL * 1.5f))
 
-            // App Name
+            // App Name — use displayMedium (32sp, lineHeight 41.6sp, letterSpacing 0.25sp)
             Text(
                 text = "P-Connect",
+                style = MaterialTheme.typography.displayMedium,
                 color = PTalkTokens.Colors.SplashTitle,
-                fontSize = 48.sp,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 48.sp * 0.06f,
                 modifier = Modifier.alpha(appNameAlpha.value)
             )
         }
@@ -171,8 +170,8 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
 
             Text(
                 text = "Học viện Công nghệ Bưu chính Viễn thông",
+                style = MaterialTheme.typography.labelSmall, // 11sp, lineHeight 16.5sp
                 color = PTalkTokens.Colors.SplashFooterText,
-                fontSize = PTalkTokens.FontSizes.SplashFooter,
                 modifier = Modifier.padding(bottom = PTalkTokens.Spacing.XL)
             )
         }

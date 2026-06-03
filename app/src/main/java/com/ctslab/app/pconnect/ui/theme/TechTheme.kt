@@ -97,6 +97,12 @@ object PTalkTokens {
 
         // Orange accent (used in ScanDeviceScreen)
         val OrangeAccent = Color(0xFFFF9800)
+
+        // Hyperlink / consent links (same across all apps: blue = standard link affordance)
+        val LinkBlue = Color(0xFF0066CC)
+
+        // Home co-branding pill wordmark
+        val HomePillText = Color(0xFF3F6B58)
     }
 
     // ── Spacing (dp) ───────────────────────────────────────────────────

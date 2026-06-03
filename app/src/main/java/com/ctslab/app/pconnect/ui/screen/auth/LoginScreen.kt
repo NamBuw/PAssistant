@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Key
@@ -15,15 +14,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.ctslab.app.pconnect.LocalAppColors
 import com.ctslab.app.pconnect.R
+import com.ctslab.app.pconnect.ui.theme.PTalkTokens
 import com.ctslab.app.pconnect.ui.theme.TechColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,41 +48,39 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .padding(horizontal = PTalkTokens.LoginDimens.FormMarginH)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.HeroTop))
 
-            // PTIT University Logo
+            // PTIT logo
             Image(
                 painter = painterResource(id = R.drawable.logo_ptit),
-                contentDescription = "Logo",
-                modifier = Modifier.size(120.dp)
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier.size(PTalkTokens.LoginDimens.PtitLogoSize)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
 
+            // Headline — displayLarge sets letterSpacing=0.5sp and lineHeight for Vietnamese
             Text(
-                text = "ĐĂNG NHẬP",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.sp
-                ),
+                text = stringResource(R.string.login_headline),
+                style = MaterialTheme.typography.displayLarge,
                 color = TechColors.PTITRed
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
 
             Text(
-                text = "Sử dụng tài khoản Authentik SSO",
+                text = stringResource(R.string.login_subheadline),
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.textSecondary
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.BottomDividerMargin))
 
-            // Privacy & Terms Agreement
+            // ── Privacy & Terms consent ──────────────────────────────────
             var agreeTerms by remember { mutableStateOf(false) }
 
             Row(
@@ -91,86 +90,94 @@ fun LoginScreen(
                 Checkbox(
                     checked = agreeTerms,
                     onCheckedChange = { agreeTerms = it },
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .semantics { contentDescription = "agree_terms_checkbox" }
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(PTalkTokens.Spacing.S))
                 Text(
-                    text = "I agree to ",
+                    text = stringResource(R.string.consent_prefix),
                     style = MaterialTheme.typography.bodySmall,
                     color = colors.textPrimary
                 )
                 Text(
-                    text = "Privacy Policy",
+                    text = stringResource(R.string.consent_privacy),
                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-                    color = TechColors.PTITRed,
+                    color = PTalkTokens.Colors.LinkBlue,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable { openUrl("https://dashboard.ctslab.net/privacy") }
                 )
                 Text(
-                    text = " and ",
+                    text = stringResource(R.string.consent_and),
                     style = MaterialTheme.typography.bodySmall,
                     color = colors.textPrimary
                 )
                 Text(
-                    text = "Terms",
+                    text = stringResource(R.string.consent_terms),
                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-                    color = TechColors.PTITRed,
+                    color = PTalkTokens.Colors.LinkBlue,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable { openUrl("https://dashboard.ctslab.net/terms") }
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            // Error message (visible before consent; hidden after)
+            Text(
+                text = stringResource(R.string.consent_error),
+                style = MaterialTheme.typography.labelMedium,
+                color = PTalkTokens.Colors.LoginError,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = PTalkTokens.Spacing.XS)
+                    .then(if (agreeTerms) Modifier.height(0.dp) else Modifier)
+            )
 
-            // Error message for unchecked terms
-            if (!agreeTerms) {
-                Text(
-                    text = "You must agree to Privacy Policy and Terms & Conditions",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Red,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // SSO Button (Authentik) - Primary login method
+            // SSO Button — shape uses token; disabled state via `enabled`
             Button(
-                onClick = { if (agreeTerms) onLaunchSSO() },
+                onClick = { onLaunchSSO() },
                 enabled = agreeTerms,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
+                    .height(PTalkTokens.LoginDimens.InputHeight)
+                    .semantics { contentDescription = "sso_login_button" },
+                shape = PTalkTokens.Shapes.LoginButton,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = TechColors.PTITRed,
-                    contentColor = Color.White
+                    disabledContainerColor = PTalkTokens.Colors.LoginDividerLine
                 )
             ) {
                 Icon(
                     imageVector = Icons.Filled.Key,
-                    contentDescription = "SSO",
+                    contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(PTalkTokens.Spacing.S))
                 Text(
-                    text = "Đăng nhập với SSO",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    text = stringResource(R.string.login_btn_sso),
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Chưa có tài khoản? ", color = colors.textSecondary)
                 Text(
-                    text = "Đăng ký ngay",
+                    text = stringResource(R.string.signup_prompt),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.textSecondary
+                )
+                Text(
+                    text = stringResource(R.string.signup_link),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     color = TechColors.PTITRed,
-                    fontWeight = FontWeight.Bold,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable { onNavigateToSignup() }
                 )
             }
+
+            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.FooterBottom))
         }
     }
 }

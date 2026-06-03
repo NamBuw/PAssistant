@@ -15,17 +15,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ctslab.app.pconnect.LocalAppColors
 import com.ctslab.app.pconnect.R
 import com.ctslab.app.pconnect.ui.theme.PTalkTokens
@@ -43,6 +43,7 @@ fun LoginScreen(
     val openUrl = { url: String ->
         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
+    var agreeTerms by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -52,42 +53,37 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = PTalkTokens.LoginDimens.FormMarginH)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.HeroTop))
+            Spacer(modifier = Modifier.height(36.dp))
 
-            // PTIT logo
-            Image(
-                painter = painterResource(id = R.drawable.logo_ptit),
-                contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier.size(120.dp)
-            )
+            // ── Co-branding header (PTIT | P-Connect | CTS) ──────────────
+            CoBrandingHeader()
 
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
+            Spacer(modifier = Modifier.height(44.dp))
 
-            // Headline: 34sp, letterSpacing 0.5sp (not 2sp), lineHeight from typography scale
+            // Headline (28sp) — prominent but balanced
             Text(
                 text = stringResource(R.string.login_headline),
                 style = MaterialTheme.typography.displayLarge,
-                color = TechColors.PTITRed
+                color = TechColors.PTITRed,
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
                 text = stringResource(R.string.login_subheadline),
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.textSecondary
+                color = colors.textSecondary,
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
+            Spacer(modifier = Modifier.height(40.dp))
 
-            // ── Privacy & Terms consent ──────────────────────────────────
-            var agreeTerms by remember { mutableStateOf(false) }
-
-            // Single-line checkbox row: keep the flow on one line and let text wrap naturally
+            // ── Consent ───────────────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -100,36 +96,18 @@ fun LoginScreen(
                         .semantics { contentDescription = "agree_terms_checkbox" }
                 )
                 Spacer(modifier = Modifier.width(PTalkTokens.Spacing.S))
-                // Use a single Text with AnnotatedString so the whole sentence wraps
-                // gracefully; tap targets on the links are handled by separate clickable Texts below.
                 Text(
-                    text = buildAnnotatedString {
-                        append(stringResource(R.string.consent_prefix))
-                        withStyle(SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            color = PTalkTokens.Colors.LinkBlue,
-                            textDecoration = TextDecoration.Underline
-                        )) { append(stringResource(R.string.consent_privacy)) }
-                        append(stringResource(R.string.consent_and))
-                        withStyle(SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            color = PTalkTokens.Colors.LinkBlue,
-                            textDecoration = TextDecoration.Underline
-                        )) { append(stringResource(R.string.consent_terms)) }
-                    },
+                    text = stringResource(R.string.consent_label),
                     style = MaterialTheme.typography.bodySmall,
                     color = colors.textPrimary,
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { openUrl("https://dashboard.ctslab.net/privacy") }
+                    modifier = Modifier.weight(1f)
                 )
             }
 
-            // Privacy / Terms as separate tappable rows below the checkbox (better tap targets)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 32.dp, top = 4.dp),
+                    .padding(start = 32.dp, top = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
@@ -148,7 +126,6 @@ fun LoginScreen(
                 )
             }
 
-            // Error message — conditional rendering (not height(0) hack)
             if (!agreeTerms) {
                 Text(
                     text = stringResource(R.string.consent_error),
@@ -156,13 +133,13 @@ fun LoginScreen(
                     color = PTalkTokens.Colors.LoginError,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = PTalkTokens.Spacing.XS)
+                        .padding(top = PTalkTokens.Spacing.S)
                 )
             }
 
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // SSO button — keep original 16dp radius (not full pill), original 56dp height
+            // ── SSO button (primary) ─────────────────────────────────────
             Button(
                 onClick = { onLaunchSSO() },
                 enabled = agreeTerms,
@@ -188,7 +165,7 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -205,7 +182,77 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(PTalkTokens.Spacing.FooterBottom))
+            Spacer(modifier = Modifier.height(40.dp))
+        }
+
+        // Footer pinned to the bottom — fills the empty space, adds institutional identity
+        Text(
+            text = stringResource(R.string.login_footer),
+            style = MaterialTheme.typography.labelSmall,
+            color = PTalkTokens.Colors.LoginFooter,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 20.dp)
+        )
+    }
+}
+
+/** PTIT | P-Connect | CTS lockup — consistent with the home-screen pill and the XML apps. */
+@Composable
+private fun CoBrandingHeader() {
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = PTalkTokens.Colors.White,
+        shadowElevation = 4.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.logo_ptit),
+                contentDescription = "PTIT",
+                modifier = Modifier.size(44.dp),
+                contentScale = ContentScale.Fit
+            )
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .width(1.dp)
+                    .height(32.dp)
+                    .background(PTalkTokens.Colors.LoginDividerLine)
+            )
+            Text(
+                text = "P-CONNECT",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.5.sp
+                ),
+                color = PTalkTokens.Colors.HomePillText,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f)
+            )
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .width(1.dp)
+                    .height(32.dp)
+                    .background(PTalkTokens.Colors.LoginDividerLine)
+            )
+            Image(
+                painter = painterResource(id = R.drawable.logo_cts_flashscreen),
+                contentDescription = "CTS",
+                modifier = Modifier
+                    .width(56.dp)
+                    .height(40.dp),
+                contentScale = ContentScale.Fit
+            )
         }
     }
 }

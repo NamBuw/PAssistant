@@ -12,8 +12,12 @@
 
     <!-- Privacy / Terms consent row -->
     <string name="consent_prefix">Tôi đồng ý với </string>
+    <string name="consent_label">Tôi đồng ý với Điều khoản &amp; Chính sách bảo mật</string>
     <string name="consent_privacy">Chính sách bảo mật</string>
     <string name="consent_and"> và </string>
     <string name="consent_terms">Điều khoản</string>
     <string name="consent_error">Vui lòng đồng ý Chính sách bảo mật và Điều khoản sử dụng</string>
+
+    <!-- Footer -->
+    <string name="login_footer">© 2025 Lab CTS · Học viện Công nghệ Bưu chính Viễn thông PTIT</string>
 </resources>

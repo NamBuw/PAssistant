@@ -13,13 +13,14 @@ import androidx.compose.ui.unit.sp
 // Rule: lineHeight = fontSize * 1.4 for body, 1.3 for display/headline.
 
 val AppTypography = Typography(
-    // "ĐĂNG NHẬP", section headings
+    // "ĐĂNG NHẬP", section headings — 28sp keeps the headline prominent but balanced
+    // (34sp dominated the screen); letterSpacing kept small for Vietnamese HOA+diacritic.
     displayLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,
-        fontSize = PTalkTokens.FontSizes.LoginHeadline,   // 34sp
-        lineHeight = (34 * 1.3f).sp,                      // 44.2sp
-        letterSpacing = 0.5.sp,                           // was 2sp — reduced for Vietnamese HOA+diacritic
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
+        letterSpacing = 0.5.sp,
     ),
     // splash "P-Connect" title
     displayMedium = TextStyle(

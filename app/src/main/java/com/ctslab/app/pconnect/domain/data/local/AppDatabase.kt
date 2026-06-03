@@ -1,9 +1,9 @@
-package com.avis.app.ptalk.domain.data.local
+package com.ctslab.app.pconnect.domain.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.avis.app.ptalk.domain.data.local.dao.DeviceDao
-import com.avis.app.ptalk.domain.model.Device
+import com.ctslab.app.pconnect.domain.data.local.dao.DeviceDao
+import com.ctslab.app.pconnect.domain.model.Device
 
 @Database(
     entities = [Device::class],

@@ -1,8 +1,8 @@
-package com.avis.app.ptalk.domain.control
+package com.ctslab.app.pconnect.domain.control
 
-import com.avis.app.ptalk.core.websocket.ControlResponse
-import com.avis.app.ptalk.core.websocket.DeviceControlWebSocket
-import com.avis.app.ptalk.core.websocket.DeviceStatusResponse
+import com.ctslab.app.pconnect.core.websocket.ControlResponse
+import com.ctslab.app.pconnect.core.websocket.DeviceControlWebSocket
+import com.ctslab.app.pconnect.core.websocket.DeviceStatusResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map

@@ -1,4 +1,4 @@
-package com.avis.app.ptalk
+package com.ctslab.app.pconnect
 
 import org.junit.Test
 

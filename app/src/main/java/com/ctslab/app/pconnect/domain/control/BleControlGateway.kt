@@ -1,7 +1,7 @@
-package com.avis.app.ptalk.domain.control
+package com.ctslab.app.pconnect.domain.control
 
-import com.avis.app.ptalk.core.ble.BleSession
-import com.avis.app.ptalk.core.config.BleUuid
+import com.ctslab.app.pconnect.core.ble.BleSession
+import com.ctslab.app.pconnect.core.config.BleUuid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

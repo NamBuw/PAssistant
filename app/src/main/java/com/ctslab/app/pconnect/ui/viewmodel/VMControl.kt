@@ -1,10 +1,10 @@
-package com.avis.app.ptalk.ui.viewmodel
+package com.ctslab.app.pconnect.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.avis.app.ptalk.core.websocket.DeviceStatusResponse
-import com.avis.app.ptalk.domain.data.local.repo.DeviceRepository
-import com.avis.app.ptalk.domain.service.DeviceControlService
+import com.ctslab.app.pconnect.core.websocket.DeviceStatusResponse
+import com.ctslab.app.pconnect.domain.data.local.repo.DeviceRepository
+import com.ctslab.app.pconnect.domain.service.DeviceControlService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

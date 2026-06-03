@@ -1,4 +1,4 @@
-package com.avis.app.ptalk
+package com.ctslab.app.pconnect
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

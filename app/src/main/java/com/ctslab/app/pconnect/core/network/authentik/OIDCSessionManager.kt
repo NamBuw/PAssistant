@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.core.network.authentik
+package com.ctslab.app.pconnect.core.network.authentik
 
 import android.content.Context
 import android.content.SharedPreferences

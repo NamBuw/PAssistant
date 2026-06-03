@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.screen.config
+package com.ctslab.app.pconnect.ui.screen.config
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -74,10 +74,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.avis.app.ptalk.LocalAppColors
-import com.avis.app.ptalk.domain.control.WifiNetwork
-import com.avis.app.ptalk.ui.theme.AppColors
-import com.avis.app.ptalk.ui.theme.TechColors
+import com.ctslab.app.pconnect.LocalAppColors
+import com.ctslab.app.pconnect.domain.control.WifiNetwork
+import com.ctslab.app.pconnect.ui.theme.AppColors
+import com.ctslab.app.pconnect.ui.theme.TechColors
 
 /**
  * Modern tech-styled device configuration dialog

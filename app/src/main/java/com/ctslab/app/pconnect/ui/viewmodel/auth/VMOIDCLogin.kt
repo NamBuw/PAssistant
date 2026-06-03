@@ -1,10 +1,10 @@
-package com.avis.app.ptalk.ui.viewmodel.auth
+package com.ctslab.app.pconnect.ui.viewmodel.auth
 
 import android.app.Activity
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.avis.app.ptalk.domain.data.local.repo.OIDCAuthRepository
+import com.ctslab.app.pconnect.domain.data.local.repo.OIDCAuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

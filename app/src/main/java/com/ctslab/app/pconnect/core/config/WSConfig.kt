@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.core.config
+package com.ctslab.app.pconnect.core.config
 
 import android.content.Context
 import android.content.SharedPreferences

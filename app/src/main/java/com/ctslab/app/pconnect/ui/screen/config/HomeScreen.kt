@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.screen.config
+package com.ctslab.app.pconnect.ui.screen.config
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.PhoneAndroid
@@ -59,13 +60,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.avis.app.ptalk.LocalAppColors
-import com.avis.app.ptalk.R
-import com.avis.app.ptalk.ui.theme.AppColors
-import com.avis.app.ptalk.ui.theme.PTalkTokens
-import com.avis.app.ptalk.ui.theme.TechColors
-import com.avis.app.ptalk.ui.viewmodel.VMHome
-import com.avis.app.ptalk.domain.model.Device
+import com.ctslab.app.pconnect.LocalAppColors
+import com.ctslab.app.pconnect.R
+import com.ctslab.app.pconnect.ui.theme.AppColors
+import com.ctslab.app.pconnect.ui.theme.PTalkTokens
+import com.ctslab.app.pconnect.ui.theme.TechColors
+import com.ctslab.app.pconnect.ui.viewmodel.VMHome
+import com.ctslab.app.pconnect.domain.model.Device
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.collectAsState
@@ -80,6 +81,7 @@ fun HomeScreen(
     onNavigateToScan: () -> Unit,
     onNavigateToControl: (String, String) -> Unit,
     onNavigateToDeviceDetail: (String, String, String?) -> Unit = { _, _, _ -> },
+    onNavigateToBannedWords: () -> Unit = {},
     onSignOut: () -> Unit = {},
     viewModel: VMHome = hiltViewModel()
 ) {
@@ -153,11 +155,24 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top bar with profile button
+            // Top bar with banned-words + profile buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
+                IconButton(
+                    onClick = onNavigateToBannedWords,
+                    modifier = Modifier
+                        .size(PTalkTokens.Interactive.BtnCancelHeight)
+                        .background(Color.Transparent)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "Từ ngữ & chủ đề bị cấm",
+                        tint = PTalkTokens.Colors.HamburgerTint,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
                 IconButton(
                     onClick = { showProfileSheet = true },
                     modifier = Modifier
@@ -193,9 +208,9 @@ fun HomeScreen(
                     contentScale = androidx.compose.ui.layout.ContentScale.Fit
                 )
 
-                // Center: Text "PASSISTANT"
+                // Center: Text "P-Connect"
                 Text(
-                    text = "PASSISTANT",
+                    text = "P-CONNECT",
                     color = Color(0xFF3F6B58), // Premium green/teal tone matching the KidMentor style
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,

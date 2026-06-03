@@ -1,9 +1,12 @@
-package com.avis.app.ptalk.core.network
+package com.ctslab.app.pconnect.core.network
 
+import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query
 
 // --- User Registration (Authentik SSO) ---
@@ -138,6 +141,63 @@ data class DeviceUserLinkResponse(
     val message: String? = null
 )
 
+// --- Banned Words / Topics (parental moderation) ---
+
+data class BannedWordDto(
+    val id: String,
+    val word: String,
+    val category: String,
+    @SerializedName("set_by_role") val setByRole: String? = null,
+    @SerializedName("is_active") val isActive: Boolean = true,
+    @SerializedName("topic_id") val topicId: String? = null
+)
+
+data class BannedWordsListResponse(val words: List<BannedWordDto> = emptyList())
+
+data class BannedTopicDto(
+    val id: String,
+    val topic: String,
+    val description: String? = null,
+    @SerializedName("set_by_role") val setByRole: String? = null,
+    @SerializedName("is_active") val isActive: Boolean = true,
+    val words: List<BannedWordDto> = emptyList()
+)
+
+data class BannedTopicsListResponse(val topics: List<BannedTopicDto> = emptyList())
+
+data class AddWordRequest(
+    val word: String,
+    val category: String = "general",
+    val setByRole: String = "parent",
+    val topicId: String? = null
+)
+
+data class UpdateWordRequest(
+    val id: String,
+    @SerializedName("is_active") val isActive: Boolean? = null,
+    val category: String? = null
+)
+
+data class SuggestTopicRequest(
+    val topic: String,
+    val setByRole: String = "parent"
+)
+
+data class SuggestTopicResponse(
+    val topic: BannedTopicDto? = null,
+    val words: List<BannedWordDto> = emptyList()
+)
+
+data class ToggleTopicRequest(
+    val id: String,
+    @SerializedName("is_active") val isActive: Boolean
+)
+
+data class SimpleSuccessResponse(
+    val success: Boolean = false,
+    val error: String? = null
+)
+
 /**
  * Dashboard API for device registration, chat history, and device-user linking.
  * Base URL: Dashboard backend (e.g., http://dashboard-host:3000/)
@@ -178,8 +238,45 @@ interface DashboardApi {
         @Body request: CreateChatMessageRequest
     ): CreateChatMessageResponse
 
+    @DELETE("api/v1/chat/messages")
+    suspend fun deleteChatSession(
+        @Query("session_id") sessionId: String
+    ): SimpleSuccessResponse
+
     @POST("api/v1/devices/link-user")
     suspend fun linkUserToDevice(
         @Body request: DeviceUserLinkRequest
     ): DeviceUserLinkResponse
+
+    // --- Banned words (mobile Bearer endpoints) ---
+    @GET("api/v1/banned-words")
+    suspend fun getBannedWords(): BannedWordsListResponse
+
+    @POST("api/v1/banned-words")
+    suspend fun addBannedWord(@Body request: AddWordRequest): SimpleSuccessResponse
+
+    @PUT("api/v1/banned-words")
+    suspend fun updateBannedWord(@Body request: UpdateWordRequest): SimpleSuccessResponse
+
+    @DELETE("api/v1/banned-words")
+    suspend fun deleteBannedWord(@Query("id") id: String): SimpleSuccessResponse
+
+    // --- Banned topics (Gemma-expanded) ---
+    @GET("api/v1/banned-topics")
+    suspend fun getBannedTopics(): BannedTopicsListResponse
+
+    @POST("api/v1/banned-topics")
+    suspend fun suggestBannedTopic(
+        @Query("action") action: String = "suggest",
+        @Body request: SuggestTopicRequest
+    ): SuggestTopicResponse
+
+    @PUT("api/v1/banned-topics")
+    suspend fun toggleBannedTopic(@Body request: ToggleTopicRequest): SimpleSuccessResponse
+
+    @DELETE("api/v1/banned-topics")
+    suspend fun deleteBannedTopic(
+        @Query("id") id: String,
+        @Query("words") words: String = "cascade"
+    ): SimpleSuccessResponse
 }

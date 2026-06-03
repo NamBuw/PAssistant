@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.screen.config
+package com.ctslab.app.pconnect.ui.screen.config
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,9 +21,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.avis.app.ptalk.LocalAppColors
-import com.avis.app.ptalk.ui.theme.TechColors
-import com.avis.app.ptalk.ui.viewmodel.VMControl
+import com.ctslab.app.pconnect.LocalAppColors
+import com.ctslab.app.pconnect.ui.theme.TechColors
+import com.ctslab.app.pconnect.ui.viewmodel.VMControl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

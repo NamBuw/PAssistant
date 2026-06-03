@@ -1,7 +1,7 @@
-package com.avis.app.ptalk.domain.data.local.repo
+package com.ctslab.app.pconnect.domain.data.local.repo
 
-import com.avis.app.ptalk.domain.data.local.dao.DeviceDao
-import com.avis.app.ptalk.domain.model.Device
+import com.ctslab.app.pconnect.domain.data.local.dao.DeviceDao
+import com.ctslab.app.pconnect.domain.model.Device
 import kotlinx.coroutines.flow.Flow
 import org.thingai.base.log.ILog
 import javax.inject.Inject

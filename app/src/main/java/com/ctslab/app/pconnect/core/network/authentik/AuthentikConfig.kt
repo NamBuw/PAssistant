@@ -1,8 +1,8 @@
-package com.avis.app.ptalk.core.network.authentik
+package com.ctslab.app.pconnect.core.network.authentik
 
 import android.content.Context
 import android.net.Uri
-import com.avis.app.ptalk.BuildConfig
+import com.ctslab.app.pconnect.BuildConfig
 import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.AuthorizationService
 import net.openid.appauth.AuthorizationServiceConfiguration

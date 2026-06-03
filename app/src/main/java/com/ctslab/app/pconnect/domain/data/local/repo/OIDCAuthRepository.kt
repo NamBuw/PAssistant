@@ -1,11 +1,11 @@
-package com.avis.app.ptalk.domain.data.local.repo
+package com.ctslab.app.pconnect.domain.data.local.repo
 
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
-import com.avis.app.ptalk.core.network.authentik.AuthentikConfig
-import com.avis.app.ptalk.core.network.authentik.OIDCSessionManager
-import com.avis.app.ptalk.core.network.authentik.UserProfile
+import com.ctslab.app.pconnect.core.network.authentik.AuthentikConfig
+import com.ctslab.app.pconnect.core.network.authentik.OIDCSessionManager
+import com.ctslab.app.pconnect.core.network.authentik.UserProfile
 import kotlinx.coroutines.flow.StateFlow
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationResponse

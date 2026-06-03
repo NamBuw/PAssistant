@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.core.ble
+package com.ctslab.app.pconnect.core.ble
 
 data class ScannedDevice(
     val address: String,

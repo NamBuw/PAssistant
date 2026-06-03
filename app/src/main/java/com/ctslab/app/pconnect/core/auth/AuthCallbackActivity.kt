@@ -1,10 +1,10 @@
-package com.avis.app.ptalk.core.auth
+package com.ctslab.app.pconnect.core.auth
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.avis.app.ptalk.MainActivity
-import com.avis.app.ptalk.core.network.TokenManager
+import com.ctslab.app.pconnect.MainActivity
+import com.ctslab.app.pconnect.core.network.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

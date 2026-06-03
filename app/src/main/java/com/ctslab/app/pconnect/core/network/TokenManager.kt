@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.core.network
+package com.ctslab.app.pconnect.core.network
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -96,7 +96,7 @@ class AuthInterceptor(private val tokenManager: TokenManager) : Interceptor {
  * with fallback to TokenManager for legacy login path.
  */
 class OIDCAuthInterceptor(
-    private val sessionManager: com.avis.app.ptalk.core.network.authentik.OIDCSessionManager,
+    private val sessionManager: com.ctslab.app.pconnect.core.network.authentik.OIDCSessionManager,
     private val tokenManager: TokenManager? = null
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {

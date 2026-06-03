@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.screen.auth
+package com.ctslab.app.pconnect.ui.screen.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,10 +22,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.avis.app.ptalk.LocalAppColors
-import com.avis.app.ptalk.R
-import com.avis.app.ptalk.ui.theme.TechColors
-import com.avis.app.ptalk.ui.viewmodel.auth.VMSignup
+import com.ctslab.app.pconnect.LocalAppColors
+import com.ctslab.app.pconnect.R
+import com.ctslab.app.pconnect.ui.theme.TechColors
+import com.ctslab.app.pconnect.ui.viewmodel.auth.VMSignup
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

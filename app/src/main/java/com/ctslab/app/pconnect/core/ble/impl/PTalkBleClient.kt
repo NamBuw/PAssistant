@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.core.ble.impl
+package com.ctslab.app.pconnect.core.ble.impl
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -20,10 +20,10 @@ import android.os.Build
 import android.os.ParcelUuid
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import com.avis.app.ptalk.core.ble.BleClient
-import com.avis.app.ptalk.core.ble.BleSession
-import com.avis.app.ptalk.core.config.BleUuid
-import com.avis.app.ptalk.core.ble.ScannedDevice
+import com.ctslab.app.pconnect.core.ble.BleClient
+import com.ctslab.app.pconnect.core.ble.BleSession
+import com.ctslab.app.pconnect.core.config.BleUuid
+import com.ctslab.app.pconnect.core.ble.ScannedDevice
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel

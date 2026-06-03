@@ -1,10 +1,10 @@
-package com.avis.app.ptalk.domain.data.local.dao
+package com.ctslab.app.pconnect.domain.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.avis.app.ptalk.domain.model.Device
+import com.ctslab.app.pconnect.domain.model.Device
 import kotlinx.coroutines.flow.Flow
 
 @Dao

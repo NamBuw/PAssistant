@@ -1,5 +1,7 @@
-package com.avis.app.ptalk.ui.screen.auth
+package com.ctslab.app.pconnect.ui.screen.auth
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,14 +16,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.avis.app.ptalk.LocalAppColors
-import com.avis.app.ptalk.R
-import com.avis.app.ptalk.ui.theme.TechColors
+import com.ctslab.app.pconnect.LocalAppColors
+import com.ctslab.app.pconnect.R
+import com.ctslab.app.pconnect.ui.theme.TechColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +34,10 @@ fun LoginScreen(
     onLaunchSSO: () -> Unit = {}
 ) {
     val colors = LocalAppColors.current
+    val context = LocalContext.current
+    val openUrl = { url: String ->
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    }
 
     Box(
         modifier = Modifier
@@ -97,7 +104,7 @@ fun LoginScreen(
                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                     color = TechColors.PTITRed,
                     textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { /* Open Privacy Policy */ }
+                    modifier = Modifier.clickable { openUrl("https://dashboard.ctslab.net/privacy") }
                 )
                 Text(
                     text = " and ",
@@ -109,7 +116,7 @@ fun LoginScreen(
                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                     color = TechColors.PTITRed,
                     textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { /* Open Terms & Conditions */ }
+                    modifier = Modifier.clickable { openUrl("https://dashboard.ctslab.net/terms") }
                 )
             }
 

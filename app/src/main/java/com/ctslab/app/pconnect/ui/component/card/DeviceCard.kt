@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.component.card
+package com.ctslab.app.pconnect.ui.component.card
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,9 +27,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.avis.app.ptalk.domain.model.Device
-import com.avis.app.ptalk.ui.custom.IconWithText
-import com.avis.app.ptalk.ui.custom.StatusChip
+import com.ctslab.app.pconnect.domain.model.Device
+import com.ctslab.app.pconnect.ui.custom.IconWithText
+import com.ctslab.app.pconnect.ui.custom.StatusChip
 
 @Composable
 fun DeviceCard(device: Device, onClick: () -> Unit = {}) {

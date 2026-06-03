@@ -1,8 +1,8 @@
-package com.avis.app.ptalk.domain.service
+package com.ctslab.app.pconnect.domain.service
 
-import com.avis.app.ptalk.core.mqtt.PTalkMqttClient
-import com.avis.app.ptalk.core.websocket.ControlResponse
-import com.avis.app.ptalk.core.websocket.DeviceStatusResponse
+import com.ctslab.app.pconnect.core.mqtt.PTalkMqttClient
+import com.ctslab.app.pconnect.core.websocket.ControlResponse
+import com.ctslab.app.pconnect.core.websocket.DeviceStatusResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

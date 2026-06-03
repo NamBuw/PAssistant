@@ -1,4 +1,4 @@
-package com.avis.app.ptalk
+package com.ctslab.app.pconnect
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,12 +16,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
-import com.avis.app.ptalk.core.network.TokenManager
-import com.avis.app.ptalk.core.network.authentik.OIDCSessionManager
-import com.avis.app.ptalk.navigation.ConfigAppNavGraph
-import com.avis.app.ptalk.navigation.Route
-import com.avis.app.ptalk.ui.theme.AppColors
-import com.avis.app.ptalk.ui.theme.appColors
+import com.ctslab.app.pconnect.core.network.TokenManager
+import com.ctslab.app.pconnect.core.network.authentik.OIDCSessionManager
+import com.ctslab.app.pconnect.navigation.ConfigAppNavGraph
+import com.ctslab.app.pconnect.navigation.Route
+import com.ctslab.app.pconnect.ui.theme.AppColors
+import com.ctslab.app.pconnect.ui.theme.appColors
 import dagger.hilt.android.AndroidEntryPoint
 import org.thingai.android.module.meo.MeoSdk
 import org.thingai.base.log.ILog

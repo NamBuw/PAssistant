@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.core.network
+package com.ctslab.app.pconnect.core.network
 
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body

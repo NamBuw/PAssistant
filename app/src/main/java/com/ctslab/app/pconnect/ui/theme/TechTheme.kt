@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.theme
+package com.ctslab.app.pconnect.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape

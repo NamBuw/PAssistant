@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.screen.config
+package com.ctslab.app.pconnect.ui.screen.config
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material3.Card
@@ -48,11 +49,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.avis.app.ptalk.LocalAppColors
-import com.avis.app.ptalk.core.network.ChatMessageResponse
-import com.avis.app.ptalk.core.network.ChatSessionResponse
-import com.avis.app.ptalk.ui.theme.TechColors
-import com.avis.app.ptalk.ui.viewmodel.VMDeviceDetail
+import com.ctslab.app.pconnect.LocalAppColors
+import com.ctslab.app.pconnect.core.network.ChatMessageResponse
+import com.ctslab.app.pconnect.core.network.ChatSessionResponse
+import com.ctslab.app.pconnect.ui.theme.TechColors
+import com.ctslab.app.pconnect.ui.viewmodel.VMDeviceDetail
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,6 +154,7 @@ fun DeviceDetailScreen(
                 isLoading = uiState.isLoading,
                 error = uiState.error,
                 onSessionClick = { session -> viewModel.loadMessages(session.id) },
+                onDeleteSession = { session -> viewModel.deleteSession(deviceId ?: "", session.id) },
                 colors = colors
             )
         }
@@ -165,7 +167,8 @@ private fun ChatSessionsList(
     isLoading: Boolean,
     error: String?,
     onSessionClick: (ChatSessionResponse) -> Unit,
-    colors: com.avis.app.ptalk.ui.theme.AppColors
+    onDeleteSession: (ChatSessionResponse) -> Unit,
+    colors: com.ctslab.app.pconnect.ui.theme.AppColors
 ) {
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -213,6 +216,7 @@ private fun ChatSessionsList(
             SessionCard(
                 session = session,
                 onClick = { onSessionClick(session) },
+                onDelete = { onDeleteSession(session) },
                 colors = colors
             )
         }
@@ -225,7 +229,8 @@ private fun ChatSessionsList(
 private fun SessionCard(
     session: ChatSessionResponse,
     onClick: () -> Unit,
-    colors: com.avis.app.ptalk.ui.theme.AppColors
+    onDelete: () -> Unit,
+    colors: com.ctslab.app.pconnect.ui.theme.AppColors
 ) {
     Card(
         modifier = Modifier
@@ -279,6 +284,14 @@ private fun SessionCard(
                     )
                 }
             }
+
+            IconButton(onClick = onDelete) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Xoá lịch sử phiên này",
+                    tint = TechColors.PTITRed
+                )
+            }
         }
     }
 }
@@ -287,7 +300,7 @@ private fun SessionCard(
 private fun ChatMessagesList(
     messages: List<ChatMessageResponse>,
     isLoading: Boolean,
-    colors: com.avis.app.ptalk.ui.theme.AppColors
+    colors: com.ctslab.app.pconnect.ui.theme.AppColors
 ) {
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -325,7 +338,7 @@ private fun ChatMessagesList(
 @Composable
 private fun MessageBubble(
     message: ChatMessageResponse,
-    colors: com.avis.app.ptalk.ui.theme.AppColors
+    colors: com.ctslab.app.pconnect.ui.theme.AppColors
 ) {
     val isUser = message.sender == "user"
 

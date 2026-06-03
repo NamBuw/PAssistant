@@ -1,9 +1,9 @@
-package com.avis.app.ptalk.domain.data.local.repo
+package com.ctslab.app.pconnect.domain.data.local.repo
 
-import com.avis.app.ptalk.core.network.AuthApi
-import com.avis.app.ptalk.core.network.CentralLoginRequest
-import com.avis.app.ptalk.core.network.CentralRegisterRequest
-import com.avis.app.ptalk.core.network.TokenManager
+import com.ctslab.app.pconnect.core.network.AuthApi
+import com.ctslab.app.pconnect.core.network.CentralLoginRequest
+import com.ctslab.app.pconnect.core.network.CentralRegisterRequest
+import com.ctslab.app.pconnect.core.network.TokenManager
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton

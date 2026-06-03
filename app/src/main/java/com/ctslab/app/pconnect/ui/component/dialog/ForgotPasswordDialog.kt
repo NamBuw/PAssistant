@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.component.dialog
+package com.ctslab.app.pconnect.ui.component.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.avis.app.ptalk.ui.custom.DialogPosition
+import com.ctslab.app.pconnect.ui.custom.DialogPosition
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

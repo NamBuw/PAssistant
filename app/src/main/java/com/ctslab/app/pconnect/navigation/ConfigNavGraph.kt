@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.navigation
+package com.ctslab.app.pconnect.navigation
 
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -11,17 +11,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.avis.app.ptalk.core.auth.AuthentikAuthManager
-import com.avis.app.ptalk.core.network.TokenManager
+import com.ctslab.app.pconnect.core.auth.AuthentikAuthManager
+import com.ctslab.app.pconnect.core.network.TokenManager
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.avis.app.ptalk.ui.screen.auth.LoginScreen
-import com.avis.app.ptalk.ui.screen.auth.SignupScreen
-import com.avis.app.ptalk.ui.viewmodel.auth.VMSignup
+import com.ctslab.app.pconnect.ui.screen.auth.LoginScreen
+import com.ctslab.app.pconnect.ui.screen.auth.SignupScreen
+import com.ctslab.app.pconnect.ui.viewmodel.auth.VMSignup
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationResponse
-import com.avis.app.ptalk.ui.screen.config.DeviceDetailScreen
-import com.avis.app.ptalk.ui.screen.config.HomeScreen
-import com.avis.app.ptalk.ui.screen.config.ScanDeviceScreen
+import com.ctslab.app.pconnect.ui.screen.config.BannedWordsScreen
+import com.ctslab.app.pconnect.ui.screen.config.DeviceDetailScreen
+import com.ctslab.app.pconnect.ui.screen.config.HomeScreen
+import com.ctslab.app.pconnect.ui.screen.config.ScanDeviceScreen
 
 /**
  * Navigation for PTalk app including Auth and Config
@@ -39,7 +40,7 @@ fun ConfigAppNavGraph(
         modifier = modifier
     ) {
         composable(Route.SPLASH) {
-            com.avis.app.ptalk.ui.screen.auth.SplashScreen(
+            com.ctslab.app.pconnect.ui.screen.auth.SplashScreen(
                 onSplashComplete = {
                     navController.navigate(nextDestination) {
                         popUpTo(Route.SPLASH) { inclusive = true }
@@ -133,6 +134,9 @@ fun ConfigAppNavGraph(
                     }
                     navController.navigate(route)
                 },
+                onNavigateToBannedWords = {
+                    navController.navigate(Route.BAN_KEYWORD)
+                },
                 onSignOut = {
                     navController.navigate(Route.LOGIN) {
                         popUpTo(0) { inclusive = true }
@@ -156,11 +160,16 @@ fun ConfigAppNavGraph(
         composable("${Route.CONTROL}/{macAddress}/{deviceName}") { backStackEntry ->
             val macAddress = backStackEntry.arguments?.getString("macAddress") ?: ""
             val deviceName = backStackEntry.arguments?.getString("deviceName") ?: "PTalk Device"
-            com.avis.app.ptalk.ui.screen.config.ControlScreen(
+            com.ctslab.app.pconnect.ui.screen.config.ControlScreen(
                 macAddress = macAddress,
                 deviceName = deviceName,
                 onBack = { navController.popBackStack() }
             )
+        }
+
+        // Banned words & topics management (parental moderation)
+        composable(Route.BAN_KEYWORD) {
+            BannedWordsScreen(onBack = { navController.popBackStack() })
         }
 
         // Device detail with chat history

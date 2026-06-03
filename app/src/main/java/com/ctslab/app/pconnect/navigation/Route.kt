@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.navigation
+package com.ctslab.app.pconnect.navigation
 
 object Route {
     const val SPLASH: String = "splash"

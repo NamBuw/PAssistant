@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ctslab.pconnect"
+    namespace = "com.ctslab.app.pconnect"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.ctslab.pconnect"
+        applicationId = "com.ctslab.app.pconnect"
         minSdk = 33
         targetSdk = 36
         versionCode = 1

@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.component
+package com.ctslab.app.pconnect.ui.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Row

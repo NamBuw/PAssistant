@@ -1,9 +1,9 @@
-package com.avis.app.ptalk.ui.viewmodel.auth
+package com.ctslab.app.pconnect.ui.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.avis.app.ptalk.core.network.DashboardApi
-import com.avis.app.ptalk.core.network.DashboardSignupRequest
+import com.ctslab.app.pconnect.core.network.DashboardApi
+import com.ctslab.app.pconnect.core.network.DashboardSignupRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

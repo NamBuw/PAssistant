@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.custom
+package com.ctslab.app.pconnect.ui.custom
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

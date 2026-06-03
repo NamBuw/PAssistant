@@ -1,8 +1,8 @@
-package com.avis.app.ptalk.ui.custom
+package com.ctslab.app.pconnect.ui.custom
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
-import com.avis.app.ptalk.ui.custom.DialogPosition.*
+import com.ctslab.app.pconnect.ui.custom.DialogPosition.*
 
 enum class DialogPosition {
     TOP,

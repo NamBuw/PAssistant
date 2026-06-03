@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.component.appbar
+package com.ctslab.app.pconnect.ui.component.appbar
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons

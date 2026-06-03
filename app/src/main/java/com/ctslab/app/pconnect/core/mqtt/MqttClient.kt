@@ -1,6 +1,6 @@
-package com.avis.app.ptalk.core.mqtt
+package com.ctslab.app.pconnect.core.mqtt
 
-import com.avis.app.ptalk.BuildConfig
+import com.ctslab.app.pconnect.BuildConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

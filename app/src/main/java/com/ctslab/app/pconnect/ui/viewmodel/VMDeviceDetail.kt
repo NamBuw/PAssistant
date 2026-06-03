@@ -1,10 +1,10 @@
-package com.avis.app.ptalk.ui.viewmodel
+package com.ctslab.app.pconnect.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.avis.app.ptalk.core.network.ChatMessageResponse
-import com.avis.app.ptalk.core.network.ChatSessionResponse
-import com.avis.app.ptalk.core.network.DashboardApi
+import com.ctslab.app.pconnect.core.network.ChatMessageResponse
+import com.ctslab.app.pconnect.core.network.ChatSessionResponse
+import com.ctslab.app.pconnect.core.network.DashboardApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -110,5 +110,21 @@ class VMDeviceDetail @Inject constructor(
             selectedSession = null,
             messages = emptyList()
         )
+    }
+
+    /**
+     * Delete a chat session's history (conversation_logs for that user+date), then reload.
+     */
+    fun deleteSession(deviceId: String, sessionId: String) {
+        viewModelScope.launch {
+            try {
+                dashboardApi.deleteChatSession(sessionId)
+                ILog.d(TAG, "deleteSession", "Deleted session $sessionId")
+                loadSessions(deviceId)
+            } catch (e: Exception) {
+                ILog.e(TAG, "deleteSession", e.message)
+                _uiState.value = _uiState.value.copy(error = e.message ?: "Không thể xoá lịch sử")
+            }
+        }
     }
 }

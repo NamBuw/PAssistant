@@ -1,4 +1,4 @@
-package com.avis.app.ptalk
+package com.ctslab.app.pconnect
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.avis.app.ptalk", appContext.packageName)
+        assertEquals("com.ctslab.app.pconnect", appContext.packageName)
     }
 }

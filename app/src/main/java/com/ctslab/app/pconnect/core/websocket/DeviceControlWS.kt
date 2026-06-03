@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.core.websocket
+package com.ctslab.app.pconnect.core.websocket
 
 import com.google.gson.annotations.SerializedName
 import com.google.gson.Gson

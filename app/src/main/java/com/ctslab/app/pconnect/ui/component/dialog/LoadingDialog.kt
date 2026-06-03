@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.component.dialog
+package com.ctslab.app.pconnect.ui.component.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.avis.app.ptalk.ui.custom.DialogPosition
+import com.ctslab.app.pconnect.ui.custom.DialogPosition
 
 @Composable
 fun LoadingDialog(

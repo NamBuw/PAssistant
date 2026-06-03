@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.domain.control
+package com.ctslab.app.pconnect.domain.control
 
 import kotlinx.coroutines.flow.Flow
 

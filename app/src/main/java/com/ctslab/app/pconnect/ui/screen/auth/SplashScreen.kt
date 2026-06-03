@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.screen.auth
+package com.ctslab.app.pconnect.ui.screen.auth
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import com.avis.app.ptalk.R
-import com.avis.app.ptalk.ui.theme.PTalkTokens
+import com.ctslab.app.pconnect.R
+import com.ctslab.app.pconnect.ui.theme.PTalkTokens
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -84,7 +84,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "PAssistant",
+                text = "P-Connect",
                 color = PTalkTokens.Colors.SplashTopBarText,
                 fontSize = PTalkTokens.FontSizes.SplashTopbar,
                 fontWeight = FontWeight.Medium,
@@ -118,7 +118,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
 
             // App Name
             Text(
-                text = "PAssistant",
+                text = "P-Connect",
                 color = PTalkTokens.Colors.SplashTitle,
                 fontSize = 48.sp,
                 fontWeight = FontWeight.Medium,

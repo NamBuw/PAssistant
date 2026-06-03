@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.screen.config
+package com.ctslab.app.pconnect.ui.screen.config
 
 import android.Manifest
 import android.bluetooth.BluetoothManager
@@ -80,16 +80,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.avis.app.ptalk.LocalAppColors
-import com.avis.app.ptalk.R
-import com.avis.app.ptalk.core.ble.ScannedDevice
-import com.avis.app.ptalk.ui.component.dialog.ErrorDialog
-import com.avis.app.ptalk.ui.component.dialog.LoadingDialog
-import com.avis.app.ptalk.ui.component.dialog.SuccessDialog
-import com.avis.app.ptalk.ui.theme.AppColors
-import com.avis.app.ptalk.ui.theme.TechColors
+import com.ctslab.app.pconnect.LocalAppColors
+import com.ctslab.app.pconnect.R
+import com.ctslab.app.pconnect.core.ble.ScannedDevice
+import com.ctslab.app.pconnect.ui.component.dialog.ErrorDialog
+import com.ctslab.app.pconnect.ui.component.dialog.LoadingDialog
+import com.ctslab.app.pconnect.ui.component.dialog.SuccessDialog
+import com.ctslab.app.pconnect.ui.theme.AppColors
+import com.ctslab.app.pconnect.ui.theme.TechColors
 import kotlin.random.Random
-import com.avis.app.ptalk.ui.viewmodel.VMConfigDevice
+import com.ctslab.app.pconnect.ui.viewmodel.VMConfigDevice
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle

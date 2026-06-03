@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.ui.component.dialog
+package com.ctslab.app.pconnect.ui.component.dialog
 
 import android.view.Gravity
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
-import com.avis.app.ptalk.ui.custom.DialogPosition
-import com.avis.app.ptalk.ui.custom.DialogPosition.*
+import com.ctslab.app.pconnect.ui.custom.DialogPosition
+import com.ctslab.app.pconnect.ui.custom.DialogPosition.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

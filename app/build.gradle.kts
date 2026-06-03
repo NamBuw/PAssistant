@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "com.avis.app.ptalk"
+    namespace = "com.ctslab.pconnect"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.avis.app.ptalk"
+        applicationId = "com.ctslab.pconnect"
         minSdk = 33
         targetSdk = 36
         versionCode = 1

@@ -23,6 +23,7 @@ import com.ctslab.app.pconnect.ui.screen.config.BannedWordsScreen
 import com.ctslab.app.pconnect.ui.screen.config.DeviceDetailScreen
 import com.ctslab.app.pconnect.ui.screen.config.HomeScreen
 import com.ctslab.app.pconnect.ui.screen.config.ScanDeviceScreen
+import com.ctslab.app.pconnect.ui.screen.config.SubscriptionScreen
 
 /**
  * Navigation for PTalk app including Auth and Config
@@ -137,6 +138,9 @@ fun ConfigAppNavGraph(
                 onNavigateToBannedWords = {
                     navController.navigate(Route.BAN_KEYWORD)
                 },
+                onNavigateToSubscription = {
+                    navController.navigate(Route.SUBSCRIPTION)
+                },
                 onSignOut = {
                     navController.navigate(Route.LOGIN) {
                         popUpTo(0) { inclusive = true }
@@ -170,6 +174,11 @@ fun ConfigAppNavGraph(
         // Banned words & topics management (parental moderation)
         composable(Route.BAN_KEYWORD) {
             BannedWordsScreen(onBack = { navController.popBackStack() })
+        }
+
+        // Subscription plans (Gói đăng ký)
+        composable(Route.SUBSCRIPTION) {
+            SubscriptionScreen(onBack = { navController.popBackStack() })
         }
 
         // Device detail with chat history

@@ -14,6 +14,7 @@ object Route {
     const val BAN_KEYWORD: String = "ban_keyword"
     const val ANALYTICS: String = "analytics"
     const val SETTING: String = "setting"
+    const val SUBSCRIPTION: String = "subscription"
 
     const val DEVICE_ADDDEVICE: String = "add_device"
     const val DEVICE_DETAIL: String = "device_detail"

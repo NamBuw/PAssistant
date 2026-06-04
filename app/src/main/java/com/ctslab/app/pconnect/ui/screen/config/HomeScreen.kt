@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -40,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -82,6 +84,7 @@ fun HomeScreen(
     onNavigateToControl: (String, String) -> Unit,
     onNavigateToDeviceDetail: (String, String, String?) -> Unit = { _, _, _ -> },
     onNavigateToBannedWords: () -> Unit = {},
+    onNavigateToSubscription: () -> Unit = {},
     onSignOut: () -> Unit = {},
     viewModel: VMHome = hiltViewModel()
 ) {
@@ -112,6 +115,13 @@ fun HomeScreen(
                         sheetState.hide()
                         showProfileSheet = false
                         showDeviceManagement = true
+                    }
+                },
+                onSubscription = {
+                    scope.launch {
+                        sheetState.hide()
+                        showProfileSheet = false
+                        onNavigateToSubscription()
                     }
                 },
                 onSignOut = {
@@ -369,6 +379,7 @@ private fun ProfileSheetContent(
     userId: String?,
     colors: AppColors,
     onManageDevices: () -> Unit,
+    onSubscription: () -> Unit,
     onSignOut: () -> Unit
 ) {
     Column(
@@ -452,6 +463,32 @@ private fun ProfileSheetContent(
         HorizontalDivider(color = PTalkTokens.Colors.SplashDivider)
 
         Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
+
+        // Subscription button
+        OutlinedButton(
+            onClick = onSubscription,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(PTalkTokens.Spacing.TouchTargetMin),
+            shape = PTalkTokens.Shapes.InputField,
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = PTalkTokens.Colors.PTITRedDark
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(PTalkTokens.Spacing.S))
+            Text(
+                text = "Gói đăng ký",
+                fontSize = PTalkTokens.FontSizes.LoginButton,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(PTalkTokens.Spacing.M))
 
         // Manage devices button
         Button(

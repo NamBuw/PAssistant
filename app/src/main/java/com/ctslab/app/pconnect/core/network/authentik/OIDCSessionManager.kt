@@ -87,6 +87,35 @@ class OIDCSessionManager(context: Context) {
         return _authState.value.accessToken
     }
 
+    /**
+     * Return a VALID access token, transparently refreshing it via the refresh token when
+     * the cached one has expired (Authentik access tokens live ~1h). BLOCKS on the refresh
+     * network call, so call only off the main thread (it is used from an OkHttp interceptor).
+     * Returns null if there is no authorized session or the refresh fails (e.g. no refresh
+     * token — the session must request the `offline_access` scope to get one).
+     */
+    fun getFreshAccessTokenBlocking(service: AuthorizationService): String? {
+        val state = _authState.value
+        if (!state.isAuthorized) return null
+        val latch = java.util.concurrent.CountDownLatch(1)
+        val tokenRef = arrayOfNulls<String>(1)
+        state.performActionWithFreshTokens(service) { accessToken, _, ex ->
+            if (ex != null) Log.e(TAG, "Fresh-token refresh failed", ex)
+            tokenRef[0] = accessToken
+            latch.countDown()
+        }
+        val completed = try {
+            latch.await(20, java.util.concurrent.TimeUnit.SECONDS)
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            false
+        }
+        // performActionWithFreshTokens mutates `state` in place on a successful refresh;
+        // persist so the new access/refresh tokens survive a process restart.
+        if (completed) persistAuthState(state)
+        return tokenRef[0]
+    }
+
     /** Get the current refresh token, or null if not available. */
     fun getRefreshToken(): String? {
         return _authState.value.refreshToken

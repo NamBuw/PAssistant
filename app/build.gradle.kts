@@ -55,7 +55,7 @@ android {
         buildConfigField("String", "AUTHENTIK_CLIENT_ID", "\"p-assistant-client\"")
         buildConfigField("String", "AUTHENTIK_CLIENT_SECRET", "\"p-assistant-secret-key\"")
         buildConfigField("String", "AUTHENTIK_REDIRECT_URI", "\"app://passistant/callback\"")
-        buildConfigField("String", "AUTHENTIK_SCOPES", "\"openid email profile roles user_type assigned_products\"")
+        buildConfigField("String", "AUTHENTIK_SCOPES", "\"openid email profile roles user_type assigned_products offline_access\"")
     }
 }
 

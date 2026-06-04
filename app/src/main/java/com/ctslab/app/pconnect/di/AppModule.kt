@@ -44,9 +44,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(tokenManager: TokenManager, oidcSessionManager: OIDCSessionManager): OkHttpClient {
+    fun provideOkHttpClient(
+        tokenManager: TokenManager,
+        oidcSessionManager: OIDCSessionManager,
+        authService: AuthorizationService,
+    ): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(OIDCAuthInterceptor(oidcSessionManager, tokenManager))
+            .addInterceptor(OIDCAuthInterceptor(oidcSessionManager, authService, tokenManager))
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build()

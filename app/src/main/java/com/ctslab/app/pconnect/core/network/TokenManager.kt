@@ -97,6 +97,7 @@ class AuthInterceptor(private val tokenManager: TokenManager) : Interceptor {
  */
 class OIDCAuthInterceptor(
     private val sessionManager: com.ctslab.app.pconnect.core.network.authentik.OIDCSessionManager,
+    private val authService: net.openid.appauth.AuthorizationService,
     private val tokenManager: TokenManager? = null
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -109,7 +110,10 @@ class OIDCAuthInterceptor(
             return chain.proceed(originalRequest)
         }
 
-        val token = sessionManager.getAccessToken()
+        // Refresh the access token if it has expired (Authentik tokens live ~1h) so the
+        // server never receives a stale token (which would 401). Falls back to the legacy
+        // TokenManager token when there is no OIDC session.
+        val token = sessionManager.getFreshAccessTokenBlocking(authService)
             ?: tokenManager?.getToken()
         if (token != null) {
             val newRequest = originalRequest.newBuilder()

@@ -1,6 +1,8 @@
 package com.ctslab.app.pconnect.navigation
 
 import android.content.Intent
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -56,11 +58,31 @@ fun ConfigAppNavGraph(
             val authLauncher = rememberLauncherForActivityResult(
                 ActivityResultContracts.StartActivityForResult()
             ) { result ->
-                val data = result.data ?: return@rememberLauncherForActivityResult
+                val data = result.data
+                if (data == null) {
+                    Toast.makeText(context, "Đăng nhập SSO không hoàn tất (bạn đã huỷ?)", Toast.LENGTH_LONG).show()
+                    return@rememberLauncherForActivityResult
+                }
                 val resp = AuthorizationResponse.fromIntent(data)
                 val ex = AuthorizationException.fromIntent(data)
 
-                if (ex != null || resp == null) return@rememberLauncherForActivityResult
+                if (ex != null) {
+                    // Lộ lỗi thật ra thay vì nuốt im lặng (huỷ, sai redirect, lỗi server…)
+                    Log.w(
+                        "ConfigNavGraph",
+                        "SSO authorization failed: type=${ex.type} code=${ex.code} error=${ex.error} desc=${ex.errorDescription}",
+                        ex
+                    )
+                    val msg = ex.errorDescription
+                        ?: ex.error
+                        ?: "Đăng nhập SSO không hoàn tất (bạn đã huỷ?)"
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                    return@rememberLauncherForActivityResult
+                }
+                if (resp == null) {
+                    Toast.makeText(context, "Không nhận được phản hồi từ Authentik", Toast.LENGTH_LONG).show()
+                    return@rememberLauncherForActivityResult
+                }
 
                 authManager.handleAuthorizationResponse(
                     data = data,
@@ -83,7 +105,11 @@ fun ConfigAppNavGraph(
                             popUpTo(Route.LOGIN) { inclusive = true }
                         }
                     },
-                    onError = { /* ignore */ }
+                    onError = { errMsg ->
+                        // Lỗi đổi code -> token (vd sai client_secret / PKCE) — hiện ra để chẩn đoán
+                        Log.e("ConfigNavGraph", "Token exchange failed: $errMsg")
+                        Toast.makeText(context, "Lỗi đổi token: $errMsg", Toast.LENGTH_LONG).show()
+                    }
                 )
             }
 

@@ -157,11 +157,11 @@ class OIDCSessionManager(context: Context) {
 
             UserProfile(
                 sub = json.optString("sub", ""),
-                email = json.optString("email", null),
-                name = json.optString("name", null),
-                preferredUsername = json.optString("preferred_username", null),
+                email = json.optStringOrNull("email"),
+                name = json.optStringOrNull("name"),
+                preferredUsername = json.optStringOrNull("preferred_username"),
                 roles = roles,
-                userType = json.optString("user_type", null),
+                userType = json.optStringOrNull("user_type"),
                 assignedProducts = assignedProducts
             )
         } catch (e: Exception) {
@@ -178,10 +178,11 @@ class OIDCSessionManager(context: Context) {
         service: AuthorizationService
     ): Boolean {
         val state = _authState.value
-        val refreshRequest = state.createTokenRefreshRequest() ?: run {
+        if (state.refreshToken.isNullOrBlank()) {
             Log.w(TAG, "No refresh token available")
             return false
         }
+        val refreshRequest = state.createTokenRefreshRequest()
 
         return kotlinx.coroutines.suspendCancellableCoroutine { cont ->
             service.performTokenRequest(refreshRequest) { tokenResponse, ex ->
@@ -212,6 +213,10 @@ class OIDCSessionManager(context: Context) {
     /** Get the current AuthState (for advanced use). */
     fun getAuthState(): AuthState = _authState.value
 }
+
+/** [JSONObject.optString] returns "" for absent/null keys; this returns null instead. */
+private fun JSONObject.optStringOrNull(key: String): String? =
+    if (has(key) && !isNull(key)) optString(key) else null
 
 /**
  * Parsed user profile from the ID token claims.

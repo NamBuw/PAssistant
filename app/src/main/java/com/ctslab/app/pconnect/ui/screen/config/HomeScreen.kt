@@ -2,7 +2,6 @@ package com.ctslab.app.pconnect.ui.screen.config
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,21 +51,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ctslab.app.pconnect.LocalAppColors
 import com.ctslab.app.pconnect.R
 import com.ctslab.app.pconnect.ui.theme.AppColors
 import com.ctslab.app.pconnect.ui.theme.PTalkTokens
-import com.ctslab.app.pconnect.ui.theme.TechColors
 import com.ctslab.app.pconnect.ui.viewmodel.VMHome
 import com.ctslab.app.pconnect.domain.model.Device
 import androidx.compose.material3.CircularProgressIndicator
@@ -161,12 +158,11 @@ fun HomeScreen(
     }
 
     // Main content — neutral background, brand-consistent
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val maxContentWidth = if (maxWidth >= 600.dp) 680.dp else maxWidth
 
             Column(
@@ -190,11 +186,11 @@ fun HomeScreen(
                         painter = painterResource(id = R.drawable.logo_ptit),
                         contentDescription = "Logo PTIT",
                         modifier = Modifier.size(32.dp),
-                        contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                        contentScale = ContentScale.Fit
                     )
                     Spacer(modifier = Modifier.width(PTalkTokens.Spacing.M))
                     Text(
-                        text = "P-Connect",
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.weight(1f)
@@ -219,7 +215,7 @@ fun HomeScreen(
 
                 // Section heading
                 Text(
-                    text = "Thiết bị của bạn",
+                    text = stringResource(R.string.home_section_devices),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -247,11 +243,12 @@ fun HomeScreen(
                     HomeEmptyStateCard()
                 } else {
                     uiState.devices.forEach { device ->
+                        val displayName = device.name ?: device.macAddress
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = PTalkTokens.Spacing.M)
-                                .clickable { onNavigateToControl(device.macAddress, device.name ?: device.macAddress) },
+                                .clickable { onNavigateToControl(device.macAddress, displayName) },
                             shape = RoundedCornerShape(18.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -275,13 +272,13 @@ fun HomeScreen(
                                 Spacer(Modifier.width(PTalkTokens.Spacing.L))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = device.name ?: "Thiết bị không tên",
+                                        text = device.name ?: stringResource(R.string.home_device_unnamed),
                                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Spacer(Modifier.height(PTalkTokens.Spacing.XS))
                                     Text(
-                                        text = "MAC: ${device.macAddress}",
+                                        text = stringResource(R.string.home_device_mac_prefix, device.macAddress),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -290,7 +287,7 @@ fun HomeScreen(
                                     onClick = {
                                         onNavigateToDeviceDetail(
                                             device.macAddress,
-                                            device.name ?: device.macAddress,
+                                            displayName,
                                             device.deviceId
                                         )
                                     }
@@ -310,7 +307,7 @@ fun HomeScreen(
 
                 // CTA
                 PrimaryActionButton(
-                    text = "Bắt đầu cấu hình",
+                    text = stringResource(R.string.home_cta_start_config),
                     onClick = onNavigateToScan,
                     leadingIcon = Icons.Default.Bluetooth,
                     semanticsTag = "start_config_button"
@@ -319,7 +316,6 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(PTalkTokens.Spacing.XL))
             }
         }
-    }
 }
 
 @Composable
@@ -742,7 +738,7 @@ private fun ProfileInfoRow(
 @Composable
 private fun HomeEmptyPreview() {
     AndroidPTalkTheme(darkTheme = false) {
-        androidx.compose.foundation.layout.Box(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)

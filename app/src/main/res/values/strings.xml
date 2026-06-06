@@ -31,4 +31,8 @@
     <string name="home_empty_step2">Đặt thiết bị gần điện thoại</string>
     <string name="home_empty_step3">Nhấn "Bắt đầu cấu hình" bên dưới</string>
     <string name="home_empty_cue">Bắt đầu từ nút bên dưới</string>
+    <string name="home_section_devices">Thiết bị của bạn</string>
+    <string name="home_cta_start_config">Bắt đầu cấu hình</string>
+    <string name="home_device_unnamed">Thiết bị không tên</string>
+    <string name="home_device_mac_prefix">MAC: %s</string>
 </resources>

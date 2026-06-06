@@ -178,8 +178,8 @@ fun SignupScreen(
                 enabled = !uiState.isLoading && !uiState.success,
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = TechColors.PTITRed,
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 if (uiState.isLoading) {

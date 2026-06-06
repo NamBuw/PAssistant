@@ -122,14 +122,14 @@ fun ControlScreen(
                         Icon(
                             Icons.Default.Edit,
                             "Đổi tên",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = TechColors.PTITRed,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         },
@@ -268,7 +268,7 @@ fun ControlScreen(
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 enabled = isConnected && isDeviceOnline && !isLoading,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336), contentColor = Color.White),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error, contentColor = MaterialTheme.colorScheme.onError),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Icon(Icons.Default.PowerSettingsNew, null)

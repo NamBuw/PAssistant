@@ -497,7 +497,7 @@ private fun TechHeader(colors: AppColors) {
     ) {
         // PTIT School Logo only
         Image(
-            painter = painterResource(id = R.drawable.logo_ptit),
+            painter = painterResource(id = R.drawable.logo_p_connect),
             contentDescription = "PTIT Logo",
             modifier = Modifier.size(80.dp)
         )

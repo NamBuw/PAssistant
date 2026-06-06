@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+keystore.properties
+KEYSTORE_CREDENTIALS.txt
+*.jks

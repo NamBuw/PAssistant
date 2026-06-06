@@ -146,7 +146,7 @@ private fun LoginContent(
     ) {
         // Branding
         Image(
-            painter = painterResource(id = R.drawable.logo_ptit),
+            painter = painterResource(id = R.drawable.logo_p_connect),
             contentDescription = stringResource(R.string.app_name),
             modifier = Modifier.size(88.dp)
         )

@@ -57,7 +57,7 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(40.dp))
 
             Image(
-                painter = painterResource(id = R.drawable.logo_ptit),
+                painter = painterResource(id = R.drawable.logo_p_connect),
                 contentDescription = "Logo",
                 modifier = Modifier.size(100.dp)
             )

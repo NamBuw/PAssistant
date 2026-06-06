@@ -182,7 +182,7 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo_ptit),
+                        painter = painterResource(id = R.drawable.logo_p_connect),
                         contentDescription = "Logo PTIT",
                         modifier = Modifier.size(32.dp),
                         contentScale = ContentScale.Fit

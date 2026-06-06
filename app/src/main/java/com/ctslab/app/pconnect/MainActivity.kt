@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -21,6 +20,7 @@ import com.ctslab.app.pconnect.core.network.authentik.OIDCSessionManager
 import com.ctslab.app.pconnect.navigation.ConfigAppNavGraph
 import com.ctslab.app.pconnect.navigation.Route
 import com.ctslab.app.pconnect.ui.theme.AppColors
+import com.ctslab.app.pconnect.ui.theme.AndroidPTalkTheme
 import com.ctslab.app.pconnect.ui.theme.appColors
 import dagger.hilt.android.AndroidEntryPoint
 import org.thingai.android.module.meo.MeoSdk
@@ -59,27 +59,31 @@ class MainActivity : ComponentActivity() {
             val focusManager = LocalFocusManager.current
             val keyboardController = LocalSoftwareKeyboardController.current
             
-            // Use system theme
-            val colors = appColors(isSystemInDarkTheme())
+            // Always-light brand palette (appColors ignores dark mode)
+            val colors = appColors()
 
             CompositionLocalProvider(LocalAppColors provides colors) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .pointerInput(Unit) {
-                            detectTapGestures {
-                                focusManager.clearFocus()
-                                keyboardController?.hide()
-                            }
-                        },
-                    color = colors.background
-                ) {
-                    ConfigAppNavGraph(
-                        navController = navController,
-                        startDestination = Route.SPLASH,
-                        nextDestination = startDest,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                // Force light: the token system (appColors) is always light, so the
+                // Material scheme must match to avoid a dark/light split on dark devices.
+                AndroidPTalkTheme(darkTheme = false) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                detectTapGestures {
+                                    focusManager.clearFocus()
+                                    keyboardController?.hide()
+                                }
+                            },
+                        color = colors.background
+                    ) {
+                        ConfigAppNavGraph(
+                            navController = navController,
+                            startDestination = Route.SPLASH,
+                            nextDestination = startDest,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }

@@ -20,4 +20,15 @@
 
     <!-- Footer -->
     <string name="login_footer">© 2025 Lab CTS · Học viện Công nghệ Bưu chính Viễn thông PTIT</string>
+
+    <!-- UI refresh additions -->
+    <string name="login_tagline">Kết nối và cấu hình thiết bị thông minh của bạn</string>
+    <string name="login_sso_disabled_hint">Vui lòng đồng ý điều khoản để tiếp tục</string>
+    <string name="home_devices_subtitle">Quản lý và cấu hình các thiết bị đã kết nối</string>
+    <string name="home_empty_title">Chưa có thiết bị nào</string>
+    <string name="home_empty_desc">Kết nối và cấu hình thiết bị P-Connect của bạn chỉ trong vài bước.</string>
+    <string name="home_empty_step1">Bật Bluetooth trên điện thoại</string>
+    <string name="home_empty_step2">Đặt thiết bị gần điện thoại</string>
+    <string name="home_empty_step3">Nhấn "Bắt đầu cấu hình" bên dưới</string>
+    <string name="home_empty_cue">Bắt đầu từ nút bên dưới</string>
 </resources>

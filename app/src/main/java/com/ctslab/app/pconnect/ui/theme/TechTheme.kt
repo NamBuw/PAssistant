@@ -78,10 +78,10 @@ object PTalkTokens {
         val GuestBtnPressedBg = Color(0xFFE5E5E5)
         val GuestBtnPressedStroke = Color(0xFF707072)
 
-        // Gradient: Home background (pastel green)
-        val HomeBgGradientStart = Color(0xFFE8F5E9)
-        val HomeBgGradientCenter = Color(0xFFC8E6C9)
-        val HomeBgGradientEnd = Color(0xFFB2DFDB)
+        // Gradient: Home background (neutral light — brand-consistent, no green)
+        val HomeBgGradientStart = Color(0xFFF7F7F8)
+        val HomeBgGradientCenter = Color(0xFFF5F5F5)
+        val HomeBgGradientEnd = Color(0xFFF1F1F3)
 
         // Gradient: Glass header
         val GlassHeaderStart = Color(0xFFFFFFFF)

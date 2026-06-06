@@ -174,7 +174,7 @@ fun SubscriptionScreen(onBack: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFFF0F0F2))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .padding(4.dp)
             ) {
                 PLANS.forEachIndexed { i, plan ->
@@ -183,7 +183,7 @@ fun SubscriptionScreen(onBack: () -> Unit) {
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(18.dp))
-                            .background(if (selected) Color(0xFF111111) else Color.Transparent)
+                            .background(if (selected) MaterialTheme.colorScheme.primary else Color.Transparent)
                             .clickable { selectedIndex = i }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center

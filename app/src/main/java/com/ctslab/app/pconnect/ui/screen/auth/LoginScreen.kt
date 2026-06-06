@@ -11,7 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,31 +21,31 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ctslab.app.pconnect.LocalAppColors
 import com.ctslab.app.pconnect.R
-import com.ctslab.app.pconnect.ui.theme.PTalkTokens
-import com.ctslab.app.pconnect.ui.theme.TechColors
+import com.ctslab.app.pconnect.ui.component.PrimaryActionButton
+import com.ctslab.app.pconnect.ui.theme.AndroidPTalkTheme
 
 /**
- * P-Connect login — minimal & professional (the parent/management app).
- * White background, small logo + wordmark, generous whitespace, one prominent SSO button.
+ * P-Connect login — Material 3, PTIT-red, brand-forward, tablet-aware.
+ * Vertically centered card; consent gates the SSO button; no error shown on load.
+ * Auth logic is untouched — onLaunchSSO / onNavigateToSignup are the only entry points.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    onNavigateToHome: () -> Unit,
+    onNavigateToHome: () -> Unit, // part of the nav contract (passed by ConfigNavGraph); SSO success navigates from the graph
     onNavigateToSignup: () -> Unit,
     onLaunchSSO: () -> Unit = {}
 ) {
-    val colors = LocalAppColors.current
     val context = LocalContext.current
     val openUrl = { url: String ->
         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
@@ -55,60 +55,146 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colors.background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        Column(
+        // Soft brand wash in the top corner (very light red), purely decorative.
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .size(220.dp)
+                .background(
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                    shape = RoundedCornerShape(bottomStart = 220.dp)
+                )
+        )
+
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .verticalScroll(rememberScrollState()),
+            contentAlignment = Alignment.Center
         ) {
-            Spacer(modifier = Modifier.height(72.dp))
+            val isTablet = maxWidth >= 600.dp
+            val cardWidth = if (isTablet) 480.dp else maxWidth
 
-            // Logo
-            Image(
-                painter = painterResource(id = R.drawable.logo_ptit),
-                contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier.size(76.dp)
-            )
+            Column(
+                modifier = Modifier
+                    .widthIn(max = cardWidth)
+                    .fillMaxWidth()
+                    .padding(horizontal = if (isTablet) 0.dp else 24.dp)
+                    .padding(vertical = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (isTablet) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 2.dp,
+                        shadowElevation = 4.dp
+                    ) {
+                        LoginContent(
+                            agreeTerms = agreeTerms,
+                            onAgreeChange = { agreeTerms = it },
+                            onLaunchSSO = onLaunchSSO,
+                            onNavigateToSignup = onNavigateToSignup,
+                            openUrl = openUrl,
+                            contentPadding = 32.dp
+                        )
+                    }
+                } else {
+                    LoginContent(
+                        agreeTerms = agreeTerms,
+                        onAgreeChange = { agreeTerms = it },
+                        onLaunchSSO = onLaunchSSO,
+                        onNavigateToSignup = onNavigateToSignup,
+                        openUrl = openUrl,
+                        contentPadding = 0.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
+        // Footer pinned to the bottom
+        Text(
+            text = stringResource(R.string.login_footer),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        )
+    }
+}
 
-            // Wordmark
-            Text(
-                text = "P-Connect",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                ),
-                color = PTalkTokens.Colors.HomePillText
-            )
+@Composable
+private fun LoginContent(
+    agreeTerms: Boolean,
+    onAgreeChange: (Boolean) -> Unit,
+    onLaunchSSO: () -> Unit,
+    onNavigateToSignup: () -> Unit,
+    openUrl: (String) -> Unit,
+    contentPadding: androidx.compose.ui.unit.Dp,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.padding(contentPadding),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Branding
+        Image(
+            painter = painterResource(id = R.drawable.logo_ptit),
+            contentDescription = stringResource(R.string.app_name),
+            modifier = Modifier.size(88.dp)
+        )
 
-            Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = stringResource(R.string.login_subheadline),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.textSecondary,
-                textAlign = TextAlign.Center
-            )
+        Text(
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp
+            ),
+            color = MaterialTheme.colorScheme.primary
+        )
 
-            Spacer(modifier = Modifier.height(52.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-            // ── Consent — inline clickable links inside the sentence ──────
-            val cPrefix = stringResource(R.string.consent_prefix)
-            val cPrivacy = stringResource(R.string.consent_privacy)
-            val cAnd = stringResource(R.string.consent_and)
-            val cTerms = stringResource(R.string.consent_terms)
+        Text(
+            text = stringResource(R.string.login_subheadline),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = stringResource(R.string.login_tagline),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        // Consent — inline clickable links (red)
+        val cPrefix = stringResource(R.string.consent_prefix)
+        val cPrivacy = stringResource(R.string.consent_privacy)
+        val cAnd = stringResource(R.string.consent_and)
+        val cTerms = stringResource(R.string.consent_terms)
+        val primaryColor = MaterialTheme.colorScheme.primary
+        val consentText = remember(cPrefix, cPrivacy, cAnd, cTerms, primaryColor) {
             val linkStyle = SpanStyle(
                 fontWeight = FontWeight.Bold,
-                color = PTalkTokens.Colors.LinkBlue,
+                color = primaryColor,
                 textDecoration = TextDecoration.Underline
             )
-            // trim() each part + explicit spaces: Android trims edge whitespace from
-            // string resources, so the spaces baked into the strings are unreliable.
-            val consentText = buildAnnotatedString {
+            buildAnnotatedString {
                 append(cPrefix.trim()); append(" ")
                 pushStringAnnotation("url", "https://dashboard.ctslab.net/privacy")
                 withStyle(linkStyle) { append(cPrivacy.trim()) }
@@ -118,98 +204,90 @@ fun LoginScreen(
                 withStyle(linkStyle) { append(cTerms.trim()) }
                 pop()
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.size(48.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Checkbox(
                     checked = agreeTerms,
-                    onCheckedChange = { agreeTerms = it },
-                    modifier = Modifier
-                        .size(24.dp)
-                        .semantics { contentDescription = "agree_terms_checkbox" }
-                )
-                Spacer(modifier = Modifier.width(PTalkTokens.Spacing.S))
-                ClickableText(
-                    text = consentText,
-                    style = MaterialTheme.typography.bodySmall.copy(color = colors.textPrimary),
-                    modifier = Modifier.weight(1f)
-                ) { offset ->
-                    consentText.getStringAnnotations("url", offset, offset)
-                        .firstOrNull()?.let { openUrl(it.item) }
-                }
-            }
-
-            if (!agreeTerms) {
-                Text(
-                    text = stringResource(R.string.consent_error),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = PTalkTokens.Colors.LoginError,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = PTalkTokens.Spacing.S)
+                    onCheckedChange = onAgreeChange,
+                    modifier = Modifier.semantics { contentDescription = "agree_terms_checkbox" }
                 )
             }
-
-            Spacer(modifier = Modifier.height(28.dp))
-
-            // ── SSO button (primary) ─────────────────────────────────────
-            Button(
-                onClick = { onLaunchSSO() },
-                enabled = agreeTerms,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .semantics { contentDescription = "sso_login_button" },
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = TechColors.PTITRed,
-                    disabledContainerColor = PTalkTokens.Colors.LoginDividerLine
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Key,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(PTalkTokens.Spacing.S))
-                Text(
-                    text = stringResource(R.string.login_btn_sso),
-                    style = MaterialTheme.typography.titleLarge
-                )
+            ClickableText(
+                text = consentText,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 14.sp
+                ),
+                modifier = Modifier.weight(1f)
+            ) { offset ->
+                consentText.getStringAnnotations("url", offset, offset)
+                    .firstOrNull()?.let { openUrl(it.item) }
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = stringResource(R.string.signup_prompt).trim(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.textSecondary
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = stringResource(R.string.signup_link),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    color = TechColors.PTITRed,
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { onNavigateToSignup() }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(40.dp))
         }
 
-        // Footer pinned to the bottom
-        Text(
-            text = stringResource(R.string.login_footer),
-            style = MaterialTheme.typography.labelSmall,
-            color = PTalkTokens.Colors.LoginFooter,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 20.dp)
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // SSO button (primary) — gated by consent
+        PrimaryActionButton(
+            text = stringResource(R.string.login_btn_sso),
+            onClick = onLaunchSSO,
+            enabled = agreeTerms,
+            leadingIcon = Icons.AutoMirrored.Filled.Login,
+            semanticsTag = "sso_login_button"
         )
+
+        // Neutral microcopy only while disabled (NOT an error on load)
+        if (!agreeTerms) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.login_sso_disabled_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        // Register link
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.signup_prompt).trim(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = stringResource(R.string.signup_link),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier.clickable(role = Role.Button) { onNavigateToSignup() }
+            )
+        }
+    }
+}
+
+@Preview(name = "Login — phone", showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+private fun LoginScreenPhonePreview() {
+    AndroidPTalkTheme(darkTheme = false) {
+        LoginScreen(onNavigateToHome = {}, onNavigateToSignup = {}, onLaunchSSO = {})
+    }
+}
+
+@Preview(name = "Login — tablet", showBackground = true, widthDp = 840, heightDp = 1100)
+@Composable
+private fun LoginScreenTabletPreview() {
+    AndroidPTalkTheme(darkTheme = false) {
+        LoginScreen(onNavigateToHome = {}, onNavigateToSignup = {}, onLaunchSSO = {})
     }
 }

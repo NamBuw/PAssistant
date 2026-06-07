@@ -29,6 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,8 +43,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ctslab.app.pconnect.core.network.TokenManager
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ctslab.app.pconnect.ui.theme.PTalkTokens
+import com.ctslab.app.pconnect.ui.viewmodel.VMSubscription
 
 private data class PlanInfo(
     val tier: String,
@@ -71,46 +74,30 @@ private fun tierLabel(tier: String): String = when (tier) {
 }
 
 /**
- * Resolve the user's subscription tier from the JWT access-token claims
- * (`subscription_tier`, `is_superuser`). P-Connect has no /quota endpoint, so the
- * token is the only source. Any decode failure falls back to "basic" (fail-safe).
- */
-private fun resolveTier(token: String?): String {
-    if (token.isNullOrBlank()) return "basic"
-    return try {
-        val parts = token.split(".")
-        if (parts.size < 2) return "basic"
-        val payload = String(
-            android.util.Base64.decode(
-                parts[1],
-                android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP or android.util.Base64.NO_PADDING
-            )
-        )
-        val json = org.json.JSONObject(payload)
-        if (json.optBoolean("is_superuser", false)) "admin"
-        else json.optString("subscription_tier", "basic").ifBlank { "basic" }
-    } catch (e: Exception) {
-        "basic"
-    }
-}
-
-/**
  * Subscription / plans screen ("Gói đăng ký"). Showcases the three tiers and points
  * upgrades to the contact email — there is no payment flow yet.
+ *
+ * The current tier is the DB source of truth — `users.subscription_tier` on the PARENT
+ * account — fetched from /api/v1/profile via [VMSubscription]. The JWT is never decoded
+ * (it has no subscription_tier claim); a failed profile call falls back to "basic".
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubscriptionScreen(onBack: () -> Unit) {
+fun SubscriptionScreen(
+    onBack: () -> Unit,
+    viewModel: VMSubscription = hiltViewModel()
+) {
     val context = LocalContext.current
-    val currentTier = remember { resolveTier(TokenManager(context).getToken()) }
-    var selectedIndex by remember {
-        mutableStateOf(
-            when (currentTier) {
-                "pro" -> 1
-                "ultra", "admin" -> 2
-                else -> 1   // showcase Pro by default
-            }
-        )
+    val currentTier by viewModel.currentTier.collectAsState()
+    LaunchedEffect(Unit) { viewModel.refresh() }
+    // Showcase Pro by default; once the real tier resolves, jump the selector to it.
+    var selectedIndex by remember { mutableStateOf(1) }
+    LaunchedEffect(currentTier) {
+        selectedIndex = when (currentTier) {
+            "pro" -> 1
+            "ultra", "admin" -> 2
+            else -> 1
+        }
     }
     var showDialog by remember { mutableStateOf(false) }
 

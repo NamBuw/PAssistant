@@ -207,7 +207,11 @@ data class ParentProfileDto(
     val displayName: String? = null,
     val fullName: String? = null,
     val phone: String? = null,
-    val dateOfBirth: String? = null    // "YYYY-MM-DD"
+    val dateOfBirth: String? = null,   // "YYYY-MM-DD"
+    // Subscription tier is the DB source of truth (users.subscription_tier on the PARENT
+    // account) — NOT the JWT, which carries no subscription_tier claim. "basic"|"pro"|"ultra".
+    val subscriptionTier: String? = null,
+    val isSuperuser: Boolean = false
 )
 
 data class ParentProfileEnvelope(

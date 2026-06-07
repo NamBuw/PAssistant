@@ -102,7 +102,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
         ) {
             // PTIT Logo with scale and rotation animations
             Image(
-                painter = painterResource(id = R.drawable.logo_p_connect),
+                painter = painterResource(id = R.drawable.logo_ptit),
                 contentDescription = "Logo PTIT",
                 modifier = Modifier
                     .size(PTalkTokens.SplashDimens.LogoSize)

@@ -6,8 +6,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -15,15 +13,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.ctslab.app.pconnect.core.auth.AuthentikAuthManager
 import com.ctslab.app.pconnect.core.network.TokenManager
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ctslab.app.pconnect.ui.screen.auth.LoginScreen
-import com.ctslab.app.pconnect.ui.screen.auth.SignupScreen
-import com.ctslab.app.pconnect.ui.viewmodel.auth.VMSignup
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationResponse
 import com.ctslab.app.pconnect.ui.screen.config.BannedWordsScreen
 import com.ctslab.app.pconnect.ui.screen.config.DeviceDetailScreen
 import com.ctslab.app.pconnect.ui.screen.config.HomeScreen
+import com.ctslab.app.pconnect.ui.screen.config.ProfileInfoScreen
 import com.ctslab.app.pconnect.ui.screen.config.ScanDeviceScreen
 import com.ctslab.app.pconnect.ui.screen.config.SubscriptionScreen
 
@@ -113,34 +109,16 @@ fun ConfigAppNavGraph(
                 )
             }
 
+            // Self-signup has been removed; SSO is the only way to authenticate.
             LoginScreen(
                 onNavigateToHome = {
                     navController.navigate(Route.HOME) {
                         popUpTo(Route.LOGIN) { inclusive = true }
                     }
                 },
-                onNavigateToSignup = {
-                    navController.navigate(Route.SIGNUP)
-                },
                 onLaunchSSO = {
                     authLauncher.launch(authManager.getAuthorizationIntent())
                 }
-            )
-        }
-
-        composable(Route.SIGNUP) {
-            val signupViewModel: VMSignup = hiltViewModel()
-            val uiState by signupViewModel.uiState.collectAsState()
-
-            SignupScreen(
-                uiState = uiState,
-                onRegister = { username, email, password, confirmPassword ->
-                    signupViewModel.register(username, email, password, confirmPassword)
-                },
-                onNavigateToLogin = {
-                    navController.popBackStack()
-                },
-                onClearError = { signupViewModel.clearError() }
             )
         }
 
@@ -167,6 +145,9 @@ fun ConfigAppNavGraph(
                 onNavigateToSubscription = {
                     navController.navigate(Route.SUBSCRIPTION)
                 },
+                onNavigateToProfileInfo = {
+                    navController.navigate(Route.PROFILE_INFO)
+                },
                 onSignOut = {
                     navController.navigate(Route.LOGIN) {
                         popUpTo(0) { inclusive = true }
@@ -174,7 +155,7 @@ fun ConfigAppNavGraph(
                 }
             )
         }
-        
+
         // Scan device screen with radar
         composable(Route.SCAN_DEVICE) {
             ScanDeviceScreen(
@@ -205,6 +186,11 @@ fun ConfigAppNavGraph(
         // Subscription plans (Gói đăng ký)
         composable(Route.SUBSCRIPTION) {
             SubscriptionScreen(onBack = { navController.popBackStack() })
+        }
+
+        // Read-only personal info (parent profile + children)
+        composable(Route.PROFILE_INFO) {
+            ProfileInfoScreen(onBack = { navController.popBackStack() })
         }
 
         // Device detail with chat history

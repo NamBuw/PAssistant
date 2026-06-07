@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +20,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -38,12 +36,13 @@ import com.ctslab.app.pconnect.ui.theme.AndroidPTalkTheme
 /**
  * P-Connect login — Material 3, PTIT-red, brand-forward, tablet-aware.
  * Vertically centered card; consent gates the SSO button; no error shown on load.
- * Auth logic is untouched — onLaunchSSO / onNavigateToSignup are the only entry points.
+ * Auth logic is untouched — onLaunchSSO is the only entry point. Self-signup has been
+ * removed: [onNavigateToSignup] is kept for the nav contract but no longer surfaced.
  */
 @Composable
 fun LoginScreen(
     onNavigateToHome: () -> Unit, // part of the nav contract (passed by ConfigNavGraph); SSO success navigates from the graph
-    onNavigateToSignup: () -> Unit,
+    onNavigateToSignup: () -> Unit = {}, // retained for source compat; signup is no longer reachable from the UI
     onLaunchSSO: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -97,7 +96,6 @@ fun LoginScreen(
                             agreeTerms = agreeTerms,
                             onAgreeChange = { agreeTerms = it },
                             onLaunchSSO = onLaunchSSO,
-                            onNavigateToSignup = onNavigateToSignup,
                             openUrl = openUrl,
                             contentPadding = 32.dp
                         )
@@ -107,7 +105,6 @@ fun LoginScreen(
                         agreeTerms = agreeTerms,
                         onAgreeChange = { agreeTerms = it },
                         onLaunchSSO = onLaunchSSO,
-                        onNavigateToSignup = onNavigateToSignup,
                         openUrl = openUrl,
                         contentPadding = 0.dp,
                         modifier = Modifier.fillMaxWidth()
@@ -135,7 +132,6 @@ private fun LoginContent(
     agreeTerms: Boolean,
     onAgreeChange: (Boolean) -> Unit,
     onLaunchSSO: () -> Unit,
-    onNavigateToSignup: () -> Unit,
     openUrl: (String) -> Unit,
     contentPadding: androidx.compose.ui.unit.Dp,
     modifier: Modifier = Modifier
@@ -252,25 +248,6 @@ private fun LoginContent(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(28.dp))
-
-        // Register link
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = stringResource(R.string.signup_prompt).trim(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = stringResource(R.string.signup_link),
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.primary,
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier.clickable(role = Role.Button) { onNavigateToSignup() }
             )
         }
     }

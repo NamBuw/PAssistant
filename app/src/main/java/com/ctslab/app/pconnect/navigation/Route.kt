@@ -15,6 +15,7 @@ object Route {
     const val ANALYTICS: String = "analytics"
     const val SETTING: String = "setting"
     const val SUBSCRIPTION: String = "subscription"
+    const val PROFILE_INFO: String = "profile_info"
 
     const val DEVICE_ADDDEVICE: String = "add_device"
     const val DEVICE_DETAIL: String = "device_detail"

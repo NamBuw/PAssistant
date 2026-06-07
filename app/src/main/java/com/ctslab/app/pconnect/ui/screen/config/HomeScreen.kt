@@ -90,6 +90,7 @@ fun HomeScreen(
     onNavigateToDeviceDetail: (String, String, String?) -> Unit = { _, _, _ -> },
     onNavigateToBannedWords: () -> Unit = {},
     onNavigateToSubscription: () -> Unit = {},
+    onNavigateToProfileInfo: () -> Unit = {},
     onSignOut: () -> Unit = {},
     viewModel: VMHome = hiltViewModel()
 ) {
@@ -120,6 +121,13 @@ fun HomeScreen(
                         sheetState.hide()
                         showProfileSheet = false
                         showDeviceManagement = true
+                    }
+                },
+                onPersonalInfo = {
+                    scope.launch {
+                        sheetState.hide()
+                        showProfileSheet = false
+                        onNavigateToProfileInfo()
                     }
                 },
                 onSubscription = {
@@ -418,6 +426,7 @@ private fun ProfileSheetContent(
     userId: String?,
     colors: AppColors,
     onManageDevices: () -> Unit,
+    onPersonalInfo: () -> Unit,
     onSubscription: () -> Unit,
     onSignOut: () -> Unit
 ) {
@@ -502,6 +511,32 @@ private fun ProfileSheetContent(
         HorizontalDivider(color = PTalkTokens.Colors.SplashDivider)
 
         Spacer(modifier = Modifier.height(PTalkTokens.Spacing.L))
+
+        // Personal info button (read-only profile + children)
+        OutlinedButton(
+            onClick = onPersonalInfo,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(PTalkTokens.Spacing.TouchTargetMin),
+            shape = PTalkTokens.Shapes.InputField,
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = PTalkTokens.Colors.PTITRedDark
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(PTalkTokens.Spacing.S))
+            Text(
+                text = "Thông tin cá nhân",
+                fontSize = PTalkTokens.FontSizes.LoginButton,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(PTalkTokens.Spacing.M))
 
         // Subscription button
         OutlinedButton(

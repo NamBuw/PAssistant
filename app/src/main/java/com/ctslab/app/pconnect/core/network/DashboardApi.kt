@@ -198,6 +198,35 @@ data class SimpleSuccessResponse(
     val error: String? = null
 )
 
+// --- Parent profile & children (read-only "Thông tin cá nhân") ---
+// JSON keys mirror Dashboard /api/v1/profile and /api/v1/children (same as KidMentor).
+
+data class ParentProfileDto(
+    val username: String? = null,
+    val email: String? = null,         // account email (read-only)
+    val displayName: String? = null,
+    val fullName: String? = null,
+    val phone: String? = null,
+    val dateOfBirth: String? = null    // "YYYY-MM-DD"
+)
+
+data class ParentProfileEnvelope(
+    val profile: ParentProfileDto? = null
+)
+
+data class ChildProfileDto(
+    val id: String? = null,
+    val fullName: String? = null,
+    val grade: String? = null,            // "1".."12"
+    val dateOfBirth: String? = null,      // "YYYY-MM-DD"
+    val curriculum: String? = null,       // chan_troi_sang_tao | canh_dieu | ket_noi_tri_thuc
+    val relationship: String? = null      // father | mother | grandparent | guardian | other
+)
+
+data class ChildrenEnvelope(
+    val children: List<ChildProfileDto> = emptyList()
+)
+
 /**
  * Dashboard API for device registration, chat history, and device-user linking.
  * Base URL: Dashboard backend (e.g., http://dashboard-host:3000/)
@@ -279,4 +308,11 @@ interface DashboardApi {
         @Query("id") id: String,
         @Query("words") words: String = "cascade"
     ): SimpleSuccessResponse
+
+    // --- Parent profile & children (read-only) ---
+    @GET("api/v1/profile")
+    suspend fun getProfile(): ParentProfileEnvelope
+
+    @GET("api/v1/children")
+    suspend fun getChildren(): ChildrenEnvelope
 }
